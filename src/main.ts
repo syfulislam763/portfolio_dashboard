@@ -11,10 +11,13 @@ async function bootstrap() {
   .addBearerAuth()
   .build();
 
+  app.setGlobalPrefix(process.env.COMMON_PREFIX ?? 'api/v1')
+
   const document = SwaggerModule.createDocument(app, config)
 
   if(process.env.MODE_ENV == "development")
-    SwaggerModule.setup('docs', app, document);
+    SwaggerModule.setup( 'api/v1/docs', app, document);
+
 
   await app.listen(process.env.PORT ?? 3000);
 }
