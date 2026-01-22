@@ -13,6 +13,7 @@ import { PostModule } from './modules/post/post.module';
 import { ContactInfoModule } from './modules/contact-info/contact-info.module';
 import { SendMailModule } from './modules/send-mail/send-mail.module';
 import { QuestionModule } from './modules/question/question.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { QuestionModule } from './modules/question/question.module';
     PostModule,
     ContactInfoModule,
     SendMailModule,
-    QuestionModule
+    QuestionModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],

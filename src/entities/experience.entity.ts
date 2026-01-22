@@ -5,25 +5,25 @@ import {
   ObjectId 
 } from 'typeorm';
 
-@Entity('educations')
-export class Education {
+@Entity('experiences')
+export class Experience {
   @ObjectIdColumn()
   _id: ObjectId;
 
   @Column()
-  institute: string;
+  designation: string;
+
+  @Column()
+  companyName: string;
 
   @Column({ nullable: true })
   location: string;
 
-  @Column({ nullable: true })
-  major: string;
+  @Column({ type: 'date' })
+  startDate: Date;
 
-  @Column({ type: 'decimal', nullable: true })
-  gpa: number;
-
-  @Column({ nullable: true })
-  scale: number;
+  @Column({ type: 'date', nullable: true })
+  endDate: Date;
 
   @Column({ nullable: true })
   description: string;
