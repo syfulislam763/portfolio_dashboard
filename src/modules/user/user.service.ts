@@ -5,19 +5,52 @@ import { User, UserRole } from 'src/entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt'
+import { RefreshToken } from 'src/entities/refresh.entity';
+import { CreateRefreshTokenDto } from './dto/create-refresh.dto';
+import { UpdateRefreshTokenDto } from './dto/update-refresh.dto';
 
 @Injectable()
 export class UserService {
-    constructor(@InjectModel(User.name) private userModel: Model<User>){}
+    constructor(
+        @InjectModel(User.name) private userModel: Model<User>,
+        @InjectModel(RefreshToken.name) private refreshTokenModel: Model<RefreshToken>
+    ){}
 
     async create(createUserDto: CreateUserDto) : Promise<User> {
         const user = new this.userModel(createUserDto);
         return user.save()
     }
 
+    async createRefreshToken(createRefreshTokenDto: CreateRefreshTokenDto): Promise<RefreshToken> {
+        const refresh = new this.refreshTokenModel(createRefreshTokenDto);
+        return refresh.save()
+    }
+
+    async updateRefreshToken(email: string, refreshToken: string): Promise<RefreshToken> {
+        const refresh = await this.refreshTokenModel.findOne({email: email}).select('-id').exec()
+        if(!refresh)
+            throw new NotFoundException("No refresh token found!")
+
+        await this.refreshTokenModel.updateOne({email: email}, {refreshToken: refreshToken}).exec()
+
+        const updated = await this.refreshTokenModel.findOne({email:email}).select("-id").exec()
+
+        if(!updated)
+            throw new NotFoundException("No refresh token found!")
+
+        return updated
+    }
+
     async findAll(): Promise<User[]> {
         return this.userModel.find({isDeleted: false}).select("-password").exec()
     }
+
+    async findByEmail(email: string): Promise<User> {
+        const user = await this.userModel.findOne({email: email}).exec();
+        if(!user) throw new NotFoundException("User not found!")
+        return user;
+    }
+
 
     async findOne(id: string): Promise<User> {
         const user = await this.userModel.findOne({ _id: id, isDeleted: false }).select('-password').exec();
