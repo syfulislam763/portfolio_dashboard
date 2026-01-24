@@ -1,27 +1,21 @@
-import { 
-  Entity, 
-  ObjectIdColumn, 
-  Column, 
-  ObjectId 
-} from 'typeorm';
+import { Schema, Prop } from "@nestjs/mongoose";
+import { Types } from "mongoose";
+import { BaseSchema } from "src/common/schema/base.schema";
 
-@Entity('abouts')
-export class About {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column({ default: 0 })
+@Schema({ timestamps: true })
+export class About extends BaseSchema {
+  @Prop({ default: 0 })
   projectCompleted: number;
 
-  @Column({ default: 0 })
+  @Prop({ default: 0 })
   yearOfExperience: number;
 
-  @Column({ default: 0 })
+  @Prop({ default: 0 })
   jobCompleted: number;
 
-  @Column({ nullable: true })
+  @Prop()
   introVideo: string;
 
-  @Column()
-  userId: ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User', unique: true })
+  userId: Types.ObjectId;
 }

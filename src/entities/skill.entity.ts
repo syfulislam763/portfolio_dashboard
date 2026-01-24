@@ -1,24 +1,18 @@
-import { 
-  Entity, 
-  ObjectIdColumn, 
-  Column, 
-  ObjectId 
-} from 'typeorm';
+import { Schema, Prop } from "@nestjs/mongoose";
+import { Types } from "mongoose";
+import { BaseSchema } from "src/common/schema/base.schema";
 
-@Entity('skills')
-export class Skill {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column({ nullable: true })
+@Schema({ timestamps: true })
+export class Skill extends BaseSchema {
+  @Prop()
   role: string;
 
-  @Column()
+  @Prop()
   name: string;
 
-  @Column()
-  userId: ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  userId: Types.ObjectId;
 
-  @Column({ nullable: true })
-  aboutId: ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'About' })
+  aboutId: Types.ObjectId;
 }

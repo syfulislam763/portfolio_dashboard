@@ -14,10 +14,14 @@ import { ContactInfoModule } from './modules/contact-info/contact-info.module';
 import { SendMailModule } from './modules/send-mail/send-mail.module';
 import { QuestionModule } from './modules/question/question.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { mongooseConfig } from './config/database.config';
+import { MongooseModule } from '@nestjs/mongoose';
+
 
 @Module({
   imports: [
     ConfigModule.forRoot({isGlobal:true}),
+    MongooseModule.forRootAsync({useFactory: mongooseConfig}),
     UserModule,
     IntroModule,
     AboutModule,

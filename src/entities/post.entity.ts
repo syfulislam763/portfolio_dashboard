@@ -1,37 +1,22 @@
+import { Schema, Prop } from "@nestjs/mongoose";
+import { Types } from "mongoose";
+import { BaseSchema } from "src/common/schema/base.schema";
 
 
-import { 
-  Entity, 
-  ObjectIdColumn, 
-  Column, 
-  CreateDateColumn, 
-  ObjectId 
-} from 'typeorm';
-
-interface Keyword {
-  name: string;
-}
-
-@Entity('posts')
-export class Post {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column({ nullable: true })
-  thumbnail: string;
-
-  @Column()
+@Schema({ timestamps: true })
+export class Post extends BaseSchema {
+  @Prop({ required: true })
   title: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @Prop()
+  thumbnail?: string;
 
-  @Column()
+  @Prop({ required: true })
   text: string;
 
-  @Column()
-  userId: ObjectId;
+  @Prop({ type: [String], default: [], index: true })
+  keywords: string[];
 
-  @Column(() => Array)
-  keywords: Keyword[];
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
+  userId: Types.ObjectId;
 }

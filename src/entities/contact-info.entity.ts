@@ -1,21 +1,17 @@
-import { 
-  Entity, 
-  ObjectIdColumn, 
-  Column, 
-  ObjectId 
-} from 'typeorm';
 
-@Entity('contact_infos')
-export class ContactInfo {
-  @ObjectIdColumn()
-  _id: ObjectId;
+import { Schema, Prop } from "@nestjs/mongoose";
+import { Types } from "mongoose";
+import { BaseSchema } from "src/common/schema/base.schema";
 
-  @Column()
+
+@Schema({ timestamps: true })
+export class ContactInfo extends BaseSchema {
+  @Prop()
   title: string;
 
-  @Column()
+  @Prop()
   contact: string;
 
-  @Column()
-  userId: ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  userId: Types.ObjectId;
 }

@@ -1,23 +1,32 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 
-import { 
-    Entity,
-    ObjectIdColumn,
-    Column,
-    CreateDateColumn,
-    ObjectId
- } from "typeorm";
+export enum UserRole {
+  USER = 'user',
+  ADMIN = 'admin',
+}
 
- @Entity('users')
- export class User{
-    @ObjectIdColumn()
-    _id: ObjectId;
+@Schema({ timestamps: true })
+export class User extends Document {
+  @Prop({ required: true, unique: true, lowercase: true, index: true })
+  email: string;
 
-    @Column({unique:true, nullable:false})
-    email: string;
+  @Prop({ required: true, select: false })
+  password: string;
 
-    @Column({nullable: false})
-    password: string;
+  @Prop({ enum: UserRole, default: UserRole.USER })
+  role: UserRole;
 
-    @CreateDateColumn({name: 'created_at'})
-    createdAt:Date;
- }
+  @Prop({ default: false })
+  isDeleted?: boolean;
+}
+
+export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
+
+  this.password = await bcrypt.hash(this.password, 12);
+});
+

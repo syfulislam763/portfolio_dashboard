@@ -1,28 +1,20 @@
-import { 
-  Entity, 
-  ObjectIdColumn, 
-  Column, 
-  CreateDateColumn, 
-  ObjectId 
-} from 'typeorm';
+import { Schema, Prop } from "@nestjs/mongoose";
+import { Types } from "mongoose";
+import { BaseSchema } from "src/common/schema/base.schema";
 
-@Entity('send_mails')
+
+
+@Schema({ timestamps: true })
 export class SendMail {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column()
+  @Prop()
   name: string;
 
-  @Column()
+  @Prop()
   yourMail: string;
 
-  @Column()
+  @Prop()
   subject: string;
 
-  @Column()
+  @Prop()
   message: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
 }

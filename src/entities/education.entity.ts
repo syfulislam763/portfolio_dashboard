@@ -1,36 +1,30 @@
-import { 
-  Entity, 
-  ObjectIdColumn, 
-  Column, 
-  ObjectId 
-} from 'typeorm';
+import { Schema, Prop } from "@nestjs/mongoose";
+import { Types } from "mongoose";
+import { BaseSchema } from "src/common/schema/base.schema";
 
-@Entity('educations')
-export class Education {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column()
+@Schema({ timestamps: true })
+export class Education extends BaseSchema {
+  @Prop()
   institute: string;
 
-  @Column({ nullable: true })
+  @Prop()
   location: string;
 
-  @Column({ nullable: true })
+  @Prop()
   major: string;
 
-  @Column({ type: 'decimal', nullable: true })
+  @Prop()
   gpa: number;
 
-  @Column({ nullable: true })
+  @Prop()
   scale: number;
 
-  @Column({ nullable: true })
+  @Prop()
   description: string;
 
-  @Column()
-  userId: ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  userId: Types.ObjectId;
 
-  @Column({ nullable: true })
-  aboutId: ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'About' })
+  aboutId: Types.ObjectId;
 }

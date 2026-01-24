@@ -1,47 +1,37 @@
-import { 
-  Entity, 
-  ObjectIdColumn, 
-  Column, 
-  ObjectId 
-} from 'typeorm';
 
-interface Technology {
-  name: string;
-}
 
-interface Feature {
-  name: string;
-}
 
-@Entity('projects')
-export class Project {
-  @ObjectIdColumn()
-  _id: ObjectId;
+import { Schema, Prop } from "@nestjs/mongoose";
+import { Types } from "mongoose";
+import { BaseSchema } from "src/common/schema/base.schema";
 
-  @Column()
+
+@Schema({ timestamps: true })
+export class Project extends BaseSchema {
+  @Prop({ required: true })
   name: string;
 
-  @Column({ nullable: true })
-  githubFrontend: string;
+  @Prop()
+  githubFrontend?: string;
 
-  @Column({ nullable: true })
-  githubBackend: string;
+  @Prop()
+  githubBackend?: string;
 
-  @Column({ nullable: true })
-  liveUrl: string;
+  @Prop()
+  liveUrl?: string;
 
-  @Column({ nullable: true })
-  video: string;
+  @Prop()
+  video?: string;
 
-  @Column({ nullable: true })
-  description: string;
+  @Prop()
+  description?: string;
 
-  @Column()
-  userId: ObjectId;
+  @Prop({ type: [String], default: [] })
+  technologies: string[];
 
-  @Column(() => Array)
-  technologies: Technology[];
+  @Prop({ type: [String], default: [] })
+  features: string[];
 
-  @Column(() => Array)
-  features: Feature[];
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
+  userId: Types.ObjectId;
 }

@@ -1,30 +1,23 @@
-import { 
-  Entity, 
-  ObjectIdColumn, 
-  Column, 
-  ObjectId 
-} from 'typeorm';
-
-@Entity('intros')
-export class Intro {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column({ nullable: true })
+import { Schema, Prop } from "@nestjs/mongoose";
+import { Types } from "mongoose";
+import { BaseSchema } from "src/common/schema/base.schema";
+@Schema({ timestamps: true })
+export class Intro extends BaseSchema {
+  @Prop()
   image: string;
 
-  @Column()
+  @Prop()
   name: string;
 
-  @Column()
+  @Prop()
   title: string;
 
-  @Column({ nullable: true })
+  @Prop()
   description: string;
 
-  @Column({nullable: true, type: 'binary' })
-  file: Buffer;
+  @Prop()
+  file: string;
 
-  @Column()
-  userId: ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User', unique: true })
+  userId: Types.ObjectId;
 }

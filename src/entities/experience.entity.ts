@@ -1,36 +1,31 @@
-import { 
-  Entity, 
-  ObjectIdColumn, 
-  Column, 
-  ObjectId 
-} from 'typeorm';
 
-@Entity('experiences')
-export class Experience {
-  @ObjectIdColumn()
-  _id: ObjectId;
+import { Schema, Prop } from "@nestjs/mongoose";
+import { Types } from "mongoose";
+import { BaseSchema } from "src/common/schema/base.schema";
 
-  @Column()
+@Schema({ timestamps: true })
+export class Experience extends BaseSchema {
+  @Prop()
   designation: string;
 
-  @Column()
+  @Prop()
   companyName: string;
 
-  @Column({ nullable: true })
+  @Prop()
   location: string;
 
-  @Column({ type: 'date' })
+  @Prop()
   startDate: Date;
 
-  @Column({ type: 'date', nullable: true })
+  @Prop()
   endDate: Date;
 
-  @Column({ nullable: true })
+  @Prop()
   description: string;
 
-  @Column()
-  userId: ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  userId: Types.ObjectId;
 
-  @Column({ nullable: true })
-  aboutId: ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'About' })
+  aboutId: Types.ObjectId;
 }

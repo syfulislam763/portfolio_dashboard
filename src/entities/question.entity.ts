@@ -1,21 +1,15 @@
-import { 
-  Entity, 
-  ObjectIdColumn, 
-  Column, 
-  ObjectId 
-} from 'typeorm';
 
-@Entity('questions')
-export class Skill {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column({ nullable: true })
+import { BaseSchema } from "src/common/schema/base.schema";
+import { Schema, Prop } from "@nestjs/mongoose";
+import { Types } from "mongoose";
+@Schema({ timestamps: true })
+export class Question extends BaseSchema {
+  @Prop({ required: true })
   question: string;
 
-  @Column()
+  @Prop()
   answer: string;
 
-  @Column()
-  userId: ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  userId: Types.ObjectId;
 }
