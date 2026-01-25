@@ -10,4 +10,5 @@ export class RefreshToken extends BaseSchema {
     refreshToken:string
 }
 
+
 export const RefreshTokenSchema = SchemaFactory.createForClass(RefreshToken);

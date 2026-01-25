@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model,Types, Promise } from 'mongoose';
 import { User, UserRole } from 'src/entities/user.entity';
@@ -26,12 +26,12 @@ export class UserService {
         return refresh.save()
     }
 
-    async updateRefreshToken(email: string, refreshToken: string): Promise<RefreshToken> {
+    async updateRefreshToken(email: string, refreshTokenDto: UpdateRefreshTokenDto): Promise<RefreshToken> {
         const refresh = await this.refreshTokenModel.findOne({email: email}).select('-id').exec()
         if(!refresh)
             throw new NotFoundException("No refresh token found!")
 
-        await this.refreshTokenModel.updateOne({email: email}, {refreshToken: refreshToken}).exec()
+        await this.refreshTokenModel.updateOne({email: email}, {refreshToken: refreshTokenDto.refreshToken}).exec()
 
         const updated = await this.refreshTokenModel.findOne({email:email}).select("-id").exec()
 
@@ -42,7 +42,7 @@ export class UserService {
     }
 
     async findAll(): Promise<User[]> {
-        return this.userModel.find({isDeleted: false}).select("-password").exec()
+        return this.userModel.find({isDeleted: false}).select("+password").exec()
     }
 
     async findByEmail(email: string): Promise<User> {
@@ -71,9 +71,17 @@ export class UserService {
         return user;
     }
 
-    async softDelete(id: string): Promise<void> {
-        const res = await this.userModel.updateOne({ _id: id }, { isDeleted: true }).exec();
-        if (res.matchedCount === 0) throw new NotFoundException('User not found');
+    async softDelete(id: string): Promise<User> {
+        if (!Types.ObjectId.isValid(id)) {
+            throw new BadRequestException('Invalid user id');
+        }
+        const user = await this.userModel.findById(id)
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        user.isDeleted = true;
+
+        return user.save()
     }
 
 }

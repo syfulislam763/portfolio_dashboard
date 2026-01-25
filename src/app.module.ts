@@ -13,7 +13,6 @@ import { PostModule } from './modules/post/post.module';
 import { ContactInfoModule } from './modules/contact-info/contact-info.module';
 import { SendMailModule } from './modules/send-mail/send-mail.module';
 import { QuestionModule } from './modules/question/question.module';
-import { AuthModule } from './modules/auth/auth.module';
 import { mongooseConfig } from './config/database.config';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -33,7 +32,6 @@ import { MongooseModule } from '@nestjs/mongoose';
     ContactInfoModule,
     SendMailModule,
     QuestionModule,
-    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
