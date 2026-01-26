@@ -15,12 +15,17 @@ import { SendMailModule } from './modules/send-mail/send-mail.module';
 import { QuestionModule } from './modules/question/question.module';
 import { mongooseConfig } from './config/database.config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './modules/auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
+import { RolesGuard } from './modules/auth/guards/roles.guards';
 
 
 @Module({
   imports: [
     ConfigModule.forRoot({isGlobal:true}),
     MongooseModule.forRootAsync({useFactory: mongooseConfig}),
+    AuthModule,
     UserModule,
     IntroModule,
     AboutModule,
@@ -34,6 +39,16 @@ import { MongooseModule } from '@nestjs/mongoose';
     QuestionModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService, 
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard
+    },
+    {
+      provide:APP_GUARD,
+      useClass: RolesGuard
+    }
+],
 })
 export class AppModule {}
