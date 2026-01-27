@@ -42,7 +42,7 @@ export class UserService {
     }
 
     async findAll(): Promise<User[]> {
-        return this.userModel.find({isDeleted: false}).select("+password").exec()
+        return this.userModel.find({}).select("-password").exec()
     }
 
     async findByEmail(email: string): Promise<User> {

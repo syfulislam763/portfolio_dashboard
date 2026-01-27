@@ -10,13 +10,7 @@ import { RegisterDto } from './dto/register.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { ConfigService } from '@nestjs/config';
 import { RefreshToken } from 'src/entities/refresh.entity';
-
-
-
-
-
-
-
+import { Types } from 'mongoose';
 
 @Injectable()
 export class AuthService {
@@ -54,31 +48,26 @@ export class AuthService {
     async login(loginDto: LoginDto): Promise<AuthResponseDto> {
         const { email, password } = loginDto;
 
-        // Validate input
         if (!email || !password) {
             throw new BadRequestException('Email and password are required');
         }
 
-        // Find user and explicitly select password field
         const user = await this.userModel.findOne({ 
             email, 
             isDeleted: false
-        }).select('+password'); // Important if password is excluded by default
+        }).select('+password');
 
         if (!user) {
             throw new NotFoundException('User does not exist');
         }
 
-        // Debug logs
         console.log('Password from request:', password ? 'exists' : 'undefined');
         console.log('Password from DB:', user.password ? 'exists' : 'undefined');
 
-        // Check if password exists
         if (!user.password) {
             throw new UnauthorizedException('Invalid user data');
         }
 
-        // Compare passwords
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             throw new UnauthorizedException('Invalid credentials');
@@ -92,14 +81,44 @@ export class AuthService {
             const payload = this.jwtService.verify(refreshToken, {
                 secret: this.configService.get('JWT_REFRESH_TOKEN')
             });
-            const user = await this.userModel.findById(payload.sub);
-            const existingToken = await this.refreshTokenModel.findOne({email: user?.email})
+            console.log(JSON.stringify(payload, null, 2), "payload")
+            const user = await this.userModel.findById(new Types.ObjectId(payload.sub));
+           
+            const existingToken = await this.refreshTokenModel.findOne({email: user?.email, isDeleted:false})
+            
+            console.log(JSON.stringify(user, null, 2), "refre");
+            console.log(existingToken, "-existing token")
+
 
             if(!user ||  existingToken?.refreshToken !== refreshToken){
+                console.log("curprit", existingToken?.refreshToken !== refreshToken)
                 throw new UnauthorizedException("Invalid refresh token");
             }
 
-            return this.generateTokens(user);
+            const accessToken_payload = {
+                email: user.email,
+                sub: user._id.toString(),
+                role: user.role
+            }
+
+            
+
+            const accessToken = this.jwtService.sign(accessToken_payload, {
+                secret: this.configService.get('JWT_SECRET'),
+                expiresIn: '15m',
+            })
+
+
+            return {
+                accessToken,
+                refreshToken,
+
+                user: {
+                    _id: user._id.toString(),
+                    email: user.email,
+                    role: user.role
+                }
+            }
         }catch(error) {
             throw new UnauthorizedException("Invalid refresh token")
         }
@@ -108,7 +127,7 @@ export class AuthService {
 
     private async generateTokens(user: any): Promise<AuthResponseDto> {
         const payload = {
-            email: user.eamil,
+            email: user.email,
             sub: user._id.toString(),
             role: user.role
         }
@@ -123,12 +142,13 @@ export class AuthService {
             expiresIn: '7d',
         });
 
-        const existingToken = await this.refreshTokenModel.findOne({email: user.email}).exec()
+        const existingToken = await this.refreshTokenModel.findOne({email: user.email, isDeleted:false}).exec()
+
 
         if(existingToken){
             await this.refreshTokenModel.findOneAndUpdate({email:user.email}, {refreshToken}, {new: true})
         }else{
-            const userRefreshToken = new this.refreshTokenModel({email:user.eamil, refreshToken})
+            const userRefreshToken = new this.refreshTokenModel({email:user.email, refreshToken})
             await userRefreshToken.save()
         }
 
@@ -151,6 +171,23 @@ export class AuthService {
             refreshToken: null 
         });
         return { message: 'Logged out successfully' };
+    }
+
+    async remove(id: string): Promise<{message: string}> {
+        if (!Types.ObjectId.isValid(id)) {
+            throw new BadRequestException('Invalid user id');
+        }
+        const user = await this.userModel.findById(id)
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        user.isDeleted = true;
+
+        await this.refreshTokenModel.findOneAndUpdate({email: user.email, isDeleted: false}, {isDeleted: true}, {new: true})
+
+        await user.save()
+
+        return {message: "User is deleted"}
     }
 
     async validateUser(userId: string): Promise<any> {

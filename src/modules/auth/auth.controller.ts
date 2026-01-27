@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, HttpCode, HttpStatus, Delete, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
@@ -7,9 +7,11 @@ import { RefreshTokenDto } from './dto/refresh-token.dto'
 import { AuthResponseDto } from './dto/auth-response.dto'
 import { Public } from './decroators/public.decroator'
 import { CurrentUser } from './decroators/current-user.decroator'
+import { Roles } from './guards/roles.guards';
+import { UserRole } from 'src/entities/user.entity';
 
 
-@ApiTags('auth')
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
@@ -44,8 +46,10 @@ export class AuthController {
         return this.authService.refreshToken(refreshTokenDto.refreshToken);
     }
 
+
     @Post('logout')
     @ApiBearerAuth()
+    @Roles(UserRole.ADMIN, UserRole.USER)
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Logout user' })
     @ApiResponse({ status: 200, description: 'Logged out successfully' })
@@ -53,11 +57,14 @@ export class AuthController {
         return this.authService.logout(user.userId);
     }
 
-    @Get('profile')
+    @Delete('delete/:id')
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Get current user profile' })
-    @ApiResponse({ status: 200, description: 'Returns current user' })
-    async getProfile(@CurrentUser() user: any) {
-        return this.authService.validateUser(user.userId);
+    @Roles(UserRole.ADMIN, UserRole.USER)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({summary: "delete user"})
+    @ApiResponse({status: 200, description: "User is deleted successfully"})
+    async remove(@Param("id") id: string) {
+        return this.authService.remove(id);
     }
+
 }

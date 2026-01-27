@@ -7,8 +7,9 @@ import { UpdateRefreshTokenDto } from './dto/update-refresh.dto';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../auth/guards/roles.guards';
 import { UserRole } from 'src/entities/user.entity';
+import { Public } from '../auth/decroators/public.decroator';
 
-@ApiTags('users')
+@ApiTags('Users')
 @ApiBearerAuth()
 @Controller('user')
 export class UserController {
@@ -31,17 +32,21 @@ export class UserController {
     createRefreshToken(@Body() createRefreshToken: CreateRefreshTokenDto) {
         return this.userService.createRefreshToken(createRefreshToken)
     }
-    @Get()
-    @Roles(UserRole.ADMIN)
+    @Public()
+    @Get("/all")
+    // @Roles(UserRole.ADMIN)
     findAll() {
         return this.userService.findAll()
     }
+
     @Get(':id')
+    @Roles(UserRole.ADMIN)
     findOne(@Param('id') id: string) {
         return this.userService.findOne(id);
     }
     
     @Patch(':id')
+    @Roles(UserRole.ADMIN)
     update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
         return this.userService.update(id, updateUserDto)
     }

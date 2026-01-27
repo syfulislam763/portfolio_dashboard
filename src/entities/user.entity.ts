@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 export enum UserRole {
   USER = 'user',
   ADMIN = 'admin',
+  PUBLIC = 'public'
 }
 
 @Schema({ timestamps: true })
