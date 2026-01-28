@@ -18,6 +18,7 @@ async function bootstrap() {
   .addBearerAuth()
   .addTag('Auth', 'Authentication and authorization endpoints')
   .addTag('Users', 'User management endpoints - CRUD operations for Admin')
+  .addTag('Intro', 'Introduction of an user')
   .build();
 
   app.setGlobalPrefix(process.env.COMMON_PREFIX ?? 'api/v1')
