@@ -9,6 +9,7 @@ import { Public } from './decroators/public.decroator'
 import { CurrentUser } from './decroators/current-user.decroator'
 import { Roles } from './guards/roles.guards';
 import { UserRole } from 'src/entities/user.entity';
+import { GetUser } from './decroators/get-user.decroator';
 
 
 @ApiTags('Auth')
@@ -57,13 +58,13 @@ export class AuthController {
         return this.authService.logout(user.userId);
     }
 
-    @Delete('delete/:id')
+    @Delete('delete')
     @ApiBearerAuth()
     @Roles(UserRole.ADMIN, UserRole.USER)
     @HttpCode(HttpStatus.OK)
     @ApiOperation({summary: "delete user"})
     @ApiResponse({status: 200, description: "User is deleted successfully"})
-    async remove(@Param("id") id: string) {
+    async remove(@GetUser("_id") id: string) {
         return this.authService.remove(id);
     }
 

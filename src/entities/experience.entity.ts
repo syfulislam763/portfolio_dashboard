@@ -1,5 +1,5 @@
 
-import { Schema, Prop } from "@nestjs/mongoose";
+import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
 import { Types } from "mongoose";
 import { BaseSchema } from "src/common/schema/base.schema";
 
@@ -29,3 +29,5 @@ export class Experience extends BaseSchema {
   @Prop({ type: Types.ObjectId, ref: 'About' })
   aboutId: Types.ObjectId;
 }
+
+export const ExperienceSchema = SchemaFactory.createForClass(Experience);

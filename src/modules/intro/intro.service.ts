@@ -20,8 +20,8 @@ export class IntroService {
         if(!Types.ObjectId.isValid(id)){
             throw new BadRequestException("Invalid user id")
         }
-        const updatedIntro= await this.introModel.findByIdAndUpdate(
-            id,
+        const updatedIntro= await this.introModel.findOneAndUpdate(
+            {userId:id},
             updateIntroDto,
             {
                 new: true,
@@ -40,7 +40,7 @@ export class IntroService {
         if(!Types.ObjectId.isValid(id)){
             throw new BadRequestException("Invalid user id")
         }
-        const intro = await this.introModel.findById(id).exec();
+        const intro = await this.introModel.findOne({userId:id}).exec();
         if(!intro){
             throw new NotFoundException("Intro is not found")
         }

@@ -1,5 +1,5 @@
 
-import { Schema, Prop } from "@nestjs/mongoose";
+import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
 import { Types } from "mongoose";
 import { BaseSchema } from "src/common/schema/base.schema";
 
@@ -12,6 +12,8 @@ export class ContactInfo extends BaseSchema {
   @Prop()
   contact: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'User' })
+  @Prop({ type: Types.ObjectId, ref: 'User', unique: false })
   userId: Types.ObjectId;
 }
+
+export const ContactInfoSchema = SchemaFactory.createForClass(ContactInfo)

@@ -7,6 +7,7 @@ import { Roles } from '../auth/guards/roles.guards';
 import { UserRole } from 'src/entities/user.entity';
 import { UpdateIntroDto } from './dto/update-intro.dto';
 import { IntroResponse } from './dto/intro-response.dto';
+import { GetUser } from '../auth/decroators/get-user.decroator';
 @ApiTags("Intro")
 @ApiBearerAuth()
 @Controller('intro')
@@ -28,25 +29,25 @@ export class IntroController {
     }
 
 
-    @Patch("/update/:id")
+    @Patch("/update")
     @Roles(UserRole.ADMIN, UserRole.USER)
     @ApiResponse({
         description: "user updated",
         type:IntroResponse
     })
     @ApiBody({type: UpdateIntroDto})
-    async updateIntro (@Param("id") id: string, @Body() updateIntroDto: UpdateIntroDto): Promise<IntroResponse> {
+    async updateIntro (@GetUser("_id") id: string, @Body() updateIntroDto: UpdateIntroDto): Promise<IntroResponse> {
         return this.introService.update(id, updateIntroDto);
     }
 
-    @Get("/user/:id")
+    @Get("/user")
     @Roles(UserRole.ADMIN, UserRole.USER)
     @ApiResponse({
         status: 200,
         description: "user fetched",
         type:IntroResponse
     })
-    async get_intro(@Param("id") id:string): Promise<IntroResponse> {
+    async get_intro(@GetUser("_id") id:string): Promise<IntroResponse> {
         return this.introService.get(id)
     }
 
