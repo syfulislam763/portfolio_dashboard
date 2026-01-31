@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, IsString } from "class-validator";
+import { Type } from "class-transformer";
+import { IsDate, IsOptional, IsString } from "class-validator";
 import { Types } from "mongoose";
 
 
@@ -17,20 +18,23 @@ export class CreateExperienceDto {
     @ApiProperty({example: 'Remote'})
     location: string;
 
+    
+    @Type(() => Date)
     @IsDate()
-    @ApiProperty({example: 'Enter date'})
+    @ApiProperty({example:'2010-12-15T00:00:00.000Z'})
     startDate: Date;
 
+    @Type(() => Date)
+    @IsOptional()
     @IsDate()
-    @ApiProperty({example: 'Enter date'})
-    endDate: Date;
+    @ApiProperty({example:'2022-12-15T00:00:00.000Z'})
+    endDate?: Date;
 
     @IsString()
     @ApiProperty({example: 'description'})
     description: string;
 
-
-    userId: Types.ObjectId;
-
-    aboutId: Types.ObjectId;
 }
+
+
+// designation companyName location startDate endDate description

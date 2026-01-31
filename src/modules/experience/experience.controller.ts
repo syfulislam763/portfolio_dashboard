@@ -9,6 +9,7 @@ import { Request } from '@nestjs/common';
 import { GetUser } from '../auth/decroators/get-user.decroator';
 import { Roles } from '../auth/guards/roles.guards';
 import { UserRole } from 'src/entities/user.entity';
+import { DeleteExperienceResponseDto } from './dto/delete-experience.dto';
 @ApiTags("Experience")
 @ApiBearerAuth()
 @Controller('experience')
@@ -22,16 +23,16 @@ export class ExperienceController {
     @Roles(UserRole.ADMIN, UserRole.USER)
     @ApiBody({type: CreateExperienceDto})
     @ApiResponse({type: [ExperienceResponse] })
-    async create (@Body() createExperienceDto: CreateExperienceDto) : Promise<ExperienceResponse[]> {
-        return this.experienceService.create(createExperienceDto);
+    async create (@GetUser("_id") userId: string, @Body() createExperienceDto: CreateExperienceDto) : Promise<ExperienceResponse[]> {
+        return this.experienceService.create(userId, createExperienceDto);
     }
 
     @Patch("/update/:id")
     @Roles(UserRole.ADMIN, UserRole.USER)
     @ApiBody({type: UpdateExperienceDto})
     @ApiResponse({type: [ExperienceResponse]})
-    async update(@Param('id') id: string, @Body() updateExperienceDto: UpdateExperienceDto): Promise<ExperienceResponse[]>{
-        return this.experienceService.update(id, updateExperienceDto);
+    async update(@Param('id') id: string, @GetUser("_id") userId:string, @Body() updateExperienceDto: UpdateExperienceDto): Promise<ExperienceResponse[]>{
+        return this.experienceService.update(id,userId, updateExperienceDto);
     }
 
     @Get()
@@ -44,7 +45,8 @@ export class ExperienceController {
 
     @Delete("/:id")
     @Roles(UserRole.ADMIN, UserRole.USER)
-    async remove(@Param('id') id:string, @GetUser("_id") userId: string) {
+    @ApiResponse({type:[DeleteExperienceResponseDto]})
+    async remove(@Param('id') id:string, @GetUser("_id") userId: string): Promise<DeleteExperienceResponseDto> {
         return this.experienceService.remove(id, userId)
     }
 

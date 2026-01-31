@@ -17,8 +17,8 @@ export class Experience extends BaseSchema {
   @Prop()
   startDate: Date;
 
-  @Prop()
-  endDate: Date;
+  @Prop({required: false})
+  endDate?: Date;
 
   @Prop()
   description: string;
