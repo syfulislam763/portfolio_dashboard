@@ -41,6 +41,4 @@ export class CreateProjectDto {
     @IsArray()
     @ApiProperty({example: ['Email validation', 'Role based access']})
     features: string[];
-
-    userId: Types.ObjectId;
 }

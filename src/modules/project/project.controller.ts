@@ -8,6 +8,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { GetUser } from '../auth/decroators/get-user.decroator';
 import { Roles } from '../auth/guards/roles.guards';
 import { UserRole } from 'src/entities/user.entity';
+import { DeleteProjectResponseDto } from './dto/delete-project.dto';
 
 
 @ApiTags("Project")
@@ -22,16 +23,16 @@ export class ProjectController {
     @Roles(UserRole.ADMIN, UserRole.USER)
     @ApiBody({type: CreateProjectDto})
     @ApiResponse({type: [ProjectResponse]})
-    async create (@Body() createProjectDto: CreateProjectDto): Promise<ProjectResponse[]> {
-        return await this.projectService.create(createProjectDto);
+    async create (@GetUser("_id") userId: string, @Body() createProjectDto: CreateProjectDto): Promise<ProjectResponse[]> {
+        return await this.projectService.create(userId, createProjectDto);
     }
 
     @Patch("/update/:id")
     @Roles(UserRole.ADMIN, UserRole.USER)
     @ApiBody({type:UpdateProjectDto})
     @ApiResponse({type: [ProjectResponse]})
-    async update (@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto): Promise<ProjectResponse[]>{
-        return await this.projectService.update(id, updateProjectDto)
+    async update (@Param('id') id: string,@GetUser('_id') userId: string, @Body() updateProjectDto: UpdateProjectDto): Promise<ProjectResponse[]>{
+        return await this.projectService.update(id, userId, updateProjectDto)
     }
 
 
@@ -45,8 +46,8 @@ export class ProjectController {
 
     @Delete("/:id")
     @Roles(UserRole.ADMIN, UserRole.USER)
-    @ApiResponse({type: ProjectResponse})
-    async remove (@Param('id') id:string, @GetUser("_id") userId:string) : Promise<any>{
+    @ApiResponse({type: DeleteProjectResponseDto})
+    async remove (@Param('id') id:string, @GetUser("_id") userId:string) : Promise<DeleteProjectResponseDto>{
         return this.projectService.remove(id, userId);
     }
 
