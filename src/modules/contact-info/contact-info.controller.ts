@@ -8,6 +8,7 @@ import { UpdateContactInfoDto } from './dto/update-contact-info.dto';
 import { Roles } from '../auth/guards/roles.guards';
 import { UserRole } from 'src/entities/user.entity';
 import { GetUser } from '../auth/decroators/get-user.decroator';
+import { DeleteContactInfoResponseDto } from './dto/delete-contact-info.dto';
 
 @ApiTags('Contact Info')
 @ApiBearerAuth()
@@ -25,8 +26,8 @@ export class ContactInfoController {
         type: [ContactInfoResponse]
     })
     @ApiBody({type: CreateContactInfoDto})
-    async create (@Body() createContactInfoDto: CreateContactInfoDto): Promise<ContactInfoResponse[]> {
-        return this.contactInfoService.create(createContactInfoDto)
+    async create (@GetUser("_id") userId: string,@Body() createContactInfoDto: CreateContactInfoDto): Promise<ContactInfoResponse[]> {
+        return this.contactInfoService.create(userId, createContactInfoDto)
     }
 
     @Patch("/update/:id")
@@ -35,8 +36,8 @@ export class ContactInfoController {
         type: [ContactInfoResponse]
     })
     @ApiBody({type: UpdateContactInfoDto})
-    async update(@Param('id') id: string, @Body() updateContactInfoDto: UpdateContactInfoDto) : Promise<ContactInfoResponse[]> {
-        return this.contactInfoService.update(id, updateContactInfoDto);
+    async update(@Param('id') id: string,@GetUser("_id") userId: string, @Body() updateContactInfoDto: UpdateContactInfoDto) : Promise<ContactInfoResponse[]> {
+        return this.contactInfoService.update(id, userId, updateContactInfoDto);
     }
 
     @Get()
@@ -50,7 +51,8 @@ export class ContactInfoController {
 
     @Delete("/:id")
     @Roles(UserRole.ADMIN, UserRole.USER)
-    async remove(@Param('id') id:string, @GetUser('_id') userId:string){
+    @ApiResponse({type: DeleteContactInfoResponseDto})
+    async remove(@Param('id') id:string, @GetUser('_id') userId:string): Promise<DeleteContactInfoResponseDto>{
         return this.contactInfoService.remove(id, userId)
     }
 

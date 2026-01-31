@@ -14,6 +14,4 @@ export class CreateContactInfoDto {
     @ApiProperty({description: "enter your contact number"})
     contact: string;
 
-    @IsNotEmpty()
-    userId: Types.ObjectId;
 }

@@ -32,9 +32,8 @@ export class UserController {
     createRefreshToken(@Body() createRefreshToken: CreateRefreshTokenDto) {
         return this.userService.createRefreshToken(createRefreshToken)
     }
-    @Public()
     @Get("/all")
-    // @Roles(UserRole.ADMIN)
+    @Roles(UserRole.ADMIN)
     findAll() {
         return this.userService.findAll()
     }
