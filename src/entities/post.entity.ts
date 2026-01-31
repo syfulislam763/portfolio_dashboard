@@ -1,4 +1,4 @@
-import { Schema, Prop } from "@nestjs/mongoose";
+import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
 import { Types } from "mongoose";
 import { BaseSchema } from "src/common/schema/base.schema";
 
@@ -20,3 +20,6 @@ export class Post extends BaseSchema {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
   userId: Types.ObjectId;
 }
+
+
+export const PostSchema = SchemaFactory.createForClass(Post);

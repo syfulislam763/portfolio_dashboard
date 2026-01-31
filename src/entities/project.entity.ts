@@ -1,7 +1,7 @@
 
 
 
-import { Schema, Prop } from "@nestjs/mongoose";
+import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
 import { Types } from "mongoose";
 import { BaseSchema } from "src/common/schema/base.schema";
 
@@ -10,6 +10,9 @@ import { BaseSchema } from "src/common/schema/base.schema";
 export class Project extends BaseSchema {
   @Prop({ required: true })
   name: string;
+
+  @Prop({required:false})
+  projectType: string
 
   @Prop()
   githubFrontend?: string;
@@ -35,3 +38,6 @@ export class Project extends BaseSchema {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
   userId: Types.ObjectId;
 }
+
+
+export const ProjectSchema = SchemaFactory.createForClass(Project);
