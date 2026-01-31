@@ -20,13 +20,10 @@ export class AboutController {
 
     @Post("/create")
     @Roles(UserRole.ADMIN, UserRole.USER)
-    @ApiResponse({
-        status: 201,
-        type: CreateAboutDto
-    })
+    @ApiResponse({})
     @ApiBody({type: CreateAboutDto})
-    async create(@Body() createAboutDto: CreateAboutDto) : Promise<About> {
-        return this.aboutService.create(createAboutDto)
+    async create(@GetUser("_id") userId: string, @Body() createAboutDto: CreateAboutDto) : Promise<any> {
+        return this.aboutService.create(userId, createAboutDto)
     }
 
     @Patch("/update")

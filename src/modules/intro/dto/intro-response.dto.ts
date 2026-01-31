@@ -3,6 +3,4 @@ import { CreateIntroDto } from "./create-intro.dto";
 import { Types } from "mongoose";
 
 
-export class IntroResponse extends PartialType(CreateIntroDto) {
-    _id: Types.ObjectId
-}
+export class IntroResponse extends PartialType(CreateIntroDto) {}

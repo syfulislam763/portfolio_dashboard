@@ -5,6 +5,7 @@ import { Question } from 'src/entities/question.entity';
 import { Promise } from 'mongoose';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateAboutDto } from '../about/dto/update-about.dto';
+import { UpdateQuestionDto } from './dto/update-question.dto';
 
 @Injectable()
 export class QuestionService {
@@ -20,7 +21,7 @@ export class QuestionService {
         return await this.questionModel.find({userId: createQuestionDto.userId}).exec()
     }
 
-    async update (id:string, updateQuestionDto: UpdateAboutDto): Promise<CreateQuestionDto[]> {
+    async update (id:string, updateQuestionDto: UpdateQuestionDto): Promise<CreateQuestionDto[]> {
         if(!Types.ObjectId.isValid(id)){
             throw new BadRequestException("Invalid item id")
         }

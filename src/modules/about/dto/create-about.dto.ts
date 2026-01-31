@@ -21,5 +21,7 @@ export class CreateAboutDto {
     @ApiProperty({example: 'https//www.youtube.com/myvideo.mp4', description:'upload your introduction video'})
     introVideo: string;
 
-    userId: Types.ObjectId;
+    @IsString()
+    @ApiProperty({example:"userId"})
+    userId: string;
 }

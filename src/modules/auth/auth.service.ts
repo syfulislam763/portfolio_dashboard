@@ -91,7 +91,6 @@ export class AuthService {
 
 
             if(!user ||  existingToken?.refreshToken !== refreshToken){
-                console.log("curprit", existingToken?.refreshToken !== refreshToken)
                 throw new UnauthorizedException("Invalid refresh token");
             }
 
@@ -105,7 +104,7 @@ export class AuthService {
 
             const accessToken = this.jwtService.sign(accessToken_payload, {
                 secret: this.configService.get('JWT_SECRET'),
-                expiresIn: '15m',
+                expiresIn: '1d',
             })
 
 
@@ -134,7 +133,7 @@ export class AuthService {
 
         const accessToken = this.jwtService.sign(payload, {
             secret: this.configService.get('JWT_SECRET'),
-            expiresIn: '15m',
+            expiresIn: '1d',
         });
 
         const refreshToken = this.jwtService.sign(payload, {

@@ -18,14 +18,10 @@ export class IntroController {
 
     @Post("/create")
     @Roles(UserRole.ADMIN, UserRole.USER)
-    @ApiResponse({
-        status: 201,
-        description: "user created",
-        type: CreateIntroDto
-    })
     @ApiBody({type: CreateIntroDto})
-    async createIntro (@Body() createIntroDto: CreateIntroDto): Promise<CreateIntroDto> {
-        return this.introService.create(createIntroDto);
+    @ApiResponse({type: IntroResponse})
+    async createIntro (@GetUser('_id') userId: string, @Body() createIntroDto: CreateIntroDto): Promise<IntroResponse> {
+        return this.introService.create(userId, createIntroDto);
     }
 
 

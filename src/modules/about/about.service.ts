@@ -13,12 +13,12 @@ export class AboutService {
     ){}
 
 
-    async create (createAboutDto: CreateAboutDto): Promise<About> {
-        const about = new this.aboutModel(createAboutDto);
+    async create (userId:string, createAboutDto: CreateAboutDto): Promise<any> {
+        const about = new this.aboutModel({...createAboutDto, userId});
         return await about.save()
     }
 
-    async update (id: string , updateAboutDto: UpdateAboutDto): Promise<AboutResponse> {
+    async update (id: string , updateAboutDto: UpdateAboutDto): Promise<any> {
         if(!Types.ObjectId.isValid(id)){
             throw new BadRequestException("Invalid user id")
         }
@@ -32,7 +32,7 @@ export class AboutService {
         return updatedAbout
     }
 
-    async get(id:string) : Promise<AboutResponse> {
+    async get(id:string) : Promise<any> {
         if(!Types.ObjectId.isValid(id)){
              throw new BadRequestException("Invalid user id")
         }

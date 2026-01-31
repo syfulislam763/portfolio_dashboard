@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Intro } from 'src/entities/intro.entity';
@@ -11,9 +11,18 @@ export class IntroService {
         @InjectModel(Intro.name) private introModel: Model<Intro>
     ) {}
 
-    async create (createIntroDto: CreateIntroDto): Promise<Intro> {
-        const intro = new this.introModel(createIntroDto);
-        return intro.save()
+    async create (userId:string, createIntroDto: CreateIntroDto): Promise<IntroResponse> {
+        const exist = await this.introModel.findOne({userId: userId}).exec()
+        if(exist){
+            throw new ConflictException("Intro has been created already")
+        }
+        const intro = new this.introModel({...createIntroDto, userId:userId});
+        await intro.save()
+        const isFound = await this.introModel.findOne({userId: userId}).select("image name title description file").exec()
+        if(!isFound){
+            throw new NotFoundException("Intro may not created yet")
+        }
+        return isFound;
     }
 
     async update (id:string, updateIntroDto: UpdateIntroDto): Promise<IntroResponse> {
@@ -27,7 +36,7 @@ export class IntroService {
                 new: true,
                 runValidators: true
             }
-        );
+        ).select("image name title description file");
 
         if(!updatedIntro){
             throw new NotFoundException("Intro not found")
@@ -40,7 +49,7 @@ export class IntroService {
         if(!Types.ObjectId.isValid(id)){
             throw new BadRequestException("Invalid user id")
         }
-        const intro = await this.introModel.findOne({userId:id}).exec();
+        const intro = await this.introModel.findOne({userId:id}).select("image name title description file").exec();
         if(!intro){
             throw new NotFoundException("Intro is not found")
         }
