@@ -12,8 +12,4 @@ export class CreateSkillDto {
     @IsString()
     @ApiProperty({example:'React Js'})
     name: string;
-
-    userId: Types.ObjectId;
-
-    aboutId: Types.ObjectId;
 }
