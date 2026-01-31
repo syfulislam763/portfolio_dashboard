@@ -110,13 +110,7 @@ export class AuthService {
 
             return {
                 accessToken,
-                refreshToken,
-
-                user: {
-                    _id: user._id.toString(),
-                    email: user.email,
-                    role: user.role
-                }
+                refreshToken
             }
         }catch(error) {
             throw new UnauthorizedException("Invalid refresh token")
@@ -154,12 +148,6 @@ export class AuthService {
         return {
             accessToken,
             refreshToken,
-
-            user: {
-                _id: user._id.toString(),
-                email: user.email,
-                role: user.role
-            }
         }
 
 

@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsNumber, IsString } from "class-validator";
 import { Types } from "mongoose";
 
-
+// projectCompleted yearOfExperience jobCompleted introVideo
 
 export class CreateAboutDto {
     @IsNumber()
@@ -21,7 +21,4 @@ export class CreateAboutDto {
     @ApiProperty({example: 'https//www.youtube.com/myvideo.mp4', description:'upload your introduction video'})
     introVideo: string;
 
-    @IsString()
-    @ApiProperty({example:"userId"})
-    userId: string;
 }

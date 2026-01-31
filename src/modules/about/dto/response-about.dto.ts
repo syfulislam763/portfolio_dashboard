@@ -4,5 +4,5 @@ import { Types } from "mongoose";
 
 
 export class AboutResponse extends PartialType(CreateAboutDto)  {
-    _id: Types.ObjectId
+    
 }
