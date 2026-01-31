@@ -8,6 +8,7 @@ import { GetUser } from '../auth/decroators/get-user.decroator';
 import { QuestionResponse } from './dto/response-question.dto';
 import { Roles } from '../auth/guards/roles.guards';
 import { UserRole } from 'src/entities/user.entity';
+import { DeleteQuestionResponseDto } from './dto/delete-question.dto';
 
 @ApiTags("Questions")
 @ApiBearerAuth()
@@ -20,8 +21,8 @@ export class QuestionController {
     @Roles(UserRole.ADMIN, UserRole.USER)
     @ApiBody({type: CreateQuestionDto})
     @ApiResponse({type: [QuestionResponse]})
-    async create (@Body() createQuestionDto: CreateQuestionDto): Promise<CreateQuestionDto[]> {
-        return this.questionService.create(createQuestionDto);
+    async create (@GetUser("_id") userId: string, @Body() createQuestionDto: CreateQuestionDto): Promise<CreateQuestionDto[]> {
+        return this.questionService.create(userId, createQuestionDto);
     }
 
 
@@ -29,8 +30,8 @@ export class QuestionController {
     @Roles(UserRole.ADMIN, UserRole.USER)
     @ApiBody({type: UpdateQuestionDto})
     @ApiResponse({type: [QuestionResponse]})
-    async update(@Param('id') id: string, @Body() updateQuestionDto: UpdateQuestionDto): Promise<UpdateQuestionDto[]>{
-        return this.questionService.update(id, updateQuestionDto)
+    async update(@Param('id') id: string, @GetUser("_id") userId: string,@Body() updateQuestionDto: UpdateQuestionDto): Promise<UpdateQuestionDto[]>{
+        return this.questionService.update(id, userId, updateQuestionDto)
     }
 
     @Get('/all')
@@ -42,7 +43,8 @@ export class QuestionController {
 
     @Delete("/:id")
     @Roles(UserRole.ADMIN, UserRole.USER)
-    async remove (@Param('id') id:string, @GetUser('_id') userId:string) {
+    @ApiResponse({type: DeleteQuestionResponseDto})
+    async remove (@Param('id') id:string, @GetUser('_id') userId:string): Promise<DeleteQuestionResponseDto> {
         return this.questionService.remove(id, userId);
     }
 

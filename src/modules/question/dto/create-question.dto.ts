@@ -14,5 +14,4 @@ export class CreateQuestionDto {
     @ApiProperty({example: 'i can work in stress'})
     answer: string;
 
-    userId: Types.ObjectId;
 }
