@@ -19,7 +19,4 @@ export class CreatePostDto {
     @IsArray()
     @ApiProperty({description:'enter post keywords', example: ['AI/ML', 'Thread']})
     keywords: string[];
-
-    
-    userId: Types.ObjectId;
 }

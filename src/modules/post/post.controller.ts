@@ -8,6 +8,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { GetUser } from '../auth/decroators/get-user.decroator';
 import { Roles } from '../auth/guards/roles.guards';
 import { UserRole } from 'src/entities/user.entity';
+import { DeletePostResponseDto } from './dto/delete-post.dto';
 
 @ApiTags("Post")
 @ApiBearerAuth()
@@ -20,8 +21,8 @@ export class PostController {
     @Roles(UserRole.ADMIN, UserRole.USER)
     @ApiBody({type: CreatePostDto})
     @ApiResponse({type: [PostResponseDto]})
-    async create( @Body() createPostDto: CreatePostDto) : Promise<PostResponseDto[]> {
-        return await this.postService.create(createPostDto);
+    async create(@GetUser("_id") userId: string, @Body() createPostDto: CreatePostDto) : Promise<PostResponseDto[]> {
+        return await this.postService.create(userId, createPostDto);
     }
 
 
@@ -29,8 +30,8 @@ export class PostController {
     @Roles(UserRole.ADMIN, UserRole.USER)
     @ApiBody({type:UpdatePostDto})
     @ApiResponse({type: [PostResponseDto]})
-    async update( @Param('id') id:string, @Body() updatePostDto: UpdatePostDto): Promise<PostResponseDto[]>{
-        return await this.postService.update(id, updatePostDto);
+    async update( @Param('id') id:string, @GetUser('_id') userId: string, @Body() updatePostDto: UpdatePostDto): Promise<PostResponseDto[]>{
+        return await this.postService.update(id,userId, updatePostDto);
     }
 
 
@@ -44,8 +45,8 @@ export class PostController {
 
     @Delete("/:id")
     @Roles(UserRole.ADMIN, UserRole.USER)
-    @ApiResponse({type: PostResponseDto})
-    async remove (@Param('id') id: string, @GetUser('_id') userId: string): Promise<any> {
+    @ApiResponse({type: DeletePostResponseDto})
+    async remove (@Param('id') id: string, @GetUser('_id') userId: string): Promise<DeletePostResponseDto> {
         return await this.postService.remove(id, userId);
     }
 
