@@ -28,10 +28,8 @@ export class CreateEducationDto {
     @IsString()
     @ApiProperty({example: "your description here"})
     description: string;
-
-
-    userId: Types.ObjectId;
-
-
-    aboutId: Types.ObjectId;
 }
+
+
+
+// institute location major gpa scale description

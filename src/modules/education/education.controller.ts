@@ -9,6 +9,7 @@ import { UpdateEducationDto } from './dto/update-education.dto';
 import { Roles } from '../auth/guards/roles.guards';
 import { UserRole } from 'src/entities/user.entity';
 import { GetUser } from '../auth/decroators/get-user.decroator';
+import { DeleteEducationResponseDto } from './dto/delete-education.dto';
 
 @ApiTags("Education")
 @ApiBearerAuth()
@@ -23,18 +24,18 @@ export class EducationController {
         status:201,
         type: [EducationResponse]
     })
-    @ApiBody({type: EducationResponse})
-    async create (@Body() createEducationDto: CreateEducationDto): Promise<EducationResponse[]> {
-        return this.educationService.create(createEducationDto)
+    @ApiBody({type: CreateEducationDto})
+    async create (@GetUser("_id") userId: string, @Body() createEducationDto: CreateEducationDto): Promise<EducationResponse[]> {
+        return this.educationService.create(userId, createEducationDto)
     }
 
 
     @Patch("/update/:id")
     @Roles(UserRole.ADMIN, UserRole.USER)
     @ApiResponse({type: [EducationResponse]})
-    @ApiBody({type:EducationResponse})
-    async update (@Param("id") id: string, @Body() updateEducationDto: UpdateEducationDto): Promise<EducationResponse[]>{
-        return this.educationService.update(id, updateEducationDto)
+    @ApiBody({type:UpdateEducationDto})
+    async update (@Param("id") id: string, @GetUser("_id") userId: string, @Body() updateEducationDto: UpdateEducationDto): Promise<EducationResponse[]>{
+        return this.educationService.update(id, userId, updateEducationDto)
     }
 
     @Get("")
@@ -47,10 +48,9 @@ export class EducationController {
 
     @Delete("/:id")
     @Roles(UserRole.ADMIN, UserRole.USER)
-    @ApiResponse({type: EducationResponse})
-    async remove (@Param('id') id: string, @GetUser('_id') userId:string): Promise<EducationResponse> {
+    @ApiResponse({type: DeleteEducationResponseDto})
+    async remove (@Param('id') id: string, @GetUser('_id') userId:string): Promise<any> {
         return this.educationService.remove(id, userId)
     }
-
 
 }
