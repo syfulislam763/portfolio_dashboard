@@ -48,7 +48,4 @@ export class QuestionController {
         return this.questionService.remove(id, userId);
     }
 
-
-
-
 }

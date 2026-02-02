@@ -19,13 +19,19 @@ import { AuthModule } from './modules/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
 import { RolesGuard } from './modules/auth/guards/roles.guards';
+import { VerificationModule } from './modules/verification/verification.module';
+
+import { VerificationController } from './modules/verification/verification.controller';
+import { VerificationService } from './modules/verification/verification.service';
 
 
 @Module({
   imports: [
     ConfigModule.forRoot({isGlobal:true}),
     MongooseModule.forRootAsync({useFactory: mongooseConfig}),
+    
     AuthModule,
+    VerificationModule,
     UserModule,
     IntroModule,
     AboutModule,

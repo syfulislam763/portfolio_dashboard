@@ -11,6 +11,7 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { ConfigService } from '@nestjs/config';
 import { RefreshToken } from 'src/entities/refresh.entity';
 import { Types } from 'mongoose';
+import { VerificationService } from '../verification/verification.service';
 
 @Injectable()
 export class AuthService {
@@ -19,11 +20,16 @@ export class AuthService {
         @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(RefreshToken.name) private refreshTokenModel: Model<RefreshToken>,
         private jwtService : JwtService,
-        private configService: ConfigService
+        private configService: ConfigService,
+        private verificationService: VerificationService
     ) {}
 
 
-    async register(registerDto: RegisterDto) : Promise<AuthResponseDto> {
+    async sendOTP () {
+        
+    }
+
+    async register(registerDto: RegisterDto) : Promise<any> {
         const {email, password, role} = registerDto;
         const existingUser = await this.userModel.findOne({email, isDeleted:false})
 
@@ -31,17 +37,20 @@ export class AuthService {
             throw new ConflictException('User with this eamil already exists')
         }
 
-        const user = new this.userModel({
-            email,
-            password,
-            role,
-            isDeleted: false
-        })
+        const res = await this.verificationService.sendVerificationCode(email)
 
-        await user.save()
+        console.log(res, "send email")
+        // const user = new this.userModel({
+        //     email,
+        //     password,
+        //     role,
+        //     isDeleted: false
+        // })
+
+        // await user.save()
 
 
-        return this.generateTokens(user);
+        // return this.generateTokens(user);
 
     }
 

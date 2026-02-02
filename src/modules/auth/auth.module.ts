@@ -9,6 +9,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { JwtStrategy } from './jwt.strategy';
 import { User, UserSchema } from 'src/entities/user.entity';
 import { RefreshToken, RefreshTokenSchema } from 'src/entities/refresh.entity';
+import { VerificationModule } from '../verification/verification.module';
+
 
 @Module({
   imports: [
@@ -27,7 +29,8 @@ import { RefreshToken, RefreshTokenSchema } from 'src/entities/refresh.entity';
       {name: User.name, schema: UserSchema},
       {name: RefreshToken.name, schema:RefreshTokenSchema}
     ]),
-    ConfigModule
+    ConfigModule,
+    VerificationModule
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
