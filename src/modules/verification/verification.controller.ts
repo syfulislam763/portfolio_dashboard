@@ -1,7 +1,15 @@
 import { Controller } from '@nestjs/common';
 import { VerificationService } from './verification.service';
 import { Post, Body } from '@nestjs/common';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { VerifyDto } from './dto/verify.dto';
+import { Promise } from 'mongoose';
+import { RegisterResponseDto } from './dto/register-response.dto';
+import { AuthResponseDto } from '../auth/dto/auth-response.dto';
+import { ResendDto } from './dto/resend.dto';
+import { Public } from '../auth/decroators/public.decroator';
 
+@ApiTags("Verification")
 @Controller('verification')
 export class VerificationController {
 
@@ -14,19 +22,19 @@ export class VerificationController {
     //     return this.verificationService.sendVerificationCode(email);
     // }
 
-    // @Post('verify-code')
-    // async verifyCode(
-    //     @Body('email') email: string,
-    //     @Body('code') code: string,
-    // ) {
-    //     const isValid = await this.verificationService.verifyCode(email, code);
-    //     return { verified: isValid };
-    // }
+    @Public()
+    @Post('verify-code')
+    @ApiResponse({type: AuthResponseDto})
+    async verifyCode(@Body() verifyDto:VerifyDto): Promise<AuthResponseDto> {
+        return await this.verificationService.verifyCode(verifyDto.email, verifyDto.code);
+    }
 
-    // @Post('resend-code')
-    // async resendCode(@Body('email') email: string) {
-    //     return this.verificationService.resendCode(email);
-    // }
+    @Public()
+    @Post('resend-code')
+    @ApiResponse({type: RegisterResponseDto})
+    async resendCode(@Body() resendDto: ResendDto): Promise<RegisterResponseDto> {
+        return this.verificationService.resendCode(resendDto.email);
+    }
 
 
 

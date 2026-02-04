@@ -47,7 +47,7 @@ export class EmailService {
             return result;
         } catch (error) {
             console.error('Error sending email:', error);
-            throw new Error('Failed to send verification email');
+            throw new Error('Failed to send verification email. Try again');
         }
     }
 }

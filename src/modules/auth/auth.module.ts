@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 
@@ -10,6 +10,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { User, UserSchema } from 'src/entities/user.entity';
 import { RefreshToken, RefreshTokenSchema } from 'src/entities/refresh.entity';
 import { VerificationModule } from '../verification/verification.module';
+import { TempUser, TempUserSchema } from 'src/entities/user.temp.entity';
 
 
 @Module({
@@ -27,10 +28,11 @@ import { VerificationModule } from '../verification/verification.module';
     }),
     MongooseModule.forFeature([
       {name: User.name, schema: UserSchema},
-      {name: RefreshToken.name, schema:RefreshTokenSchema}
+      {name: RefreshToken.name, schema:RefreshTokenSchema},
+      {name: TempUser.name, schema: TempUserSchema}
     ]),
     ConfigModule,
-    VerificationModule
+    forwardRef(() => VerificationModule)
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],

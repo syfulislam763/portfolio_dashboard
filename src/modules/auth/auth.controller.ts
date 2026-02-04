@@ -10,6 +10,7 @@ import { CurrentUser } from './decroators/current-user.decroator'
 import { Roles } from './guards/roles.guards';
 import { UserRole } from 'src/entities/user.entity';
 import { GetUser } from './decroators/get-user.decroator';
+import { RegisterResponseDto } from '../verification/dto/register-response.dto';
 
 
 @ApiTags('Auth')
@@ -20,9 +21,9 @@ export class AuthController {
     @Public()
     @Post('register')
     @ApiOperation({ summary: 'Register a new user' })
-    @ApiResponse({ status: 201, type: AuthResponseDto })
+    @ApiResponse({ status: 201, type: RegisterResponseDto })
     @ApiResponse({ status: 409, description: 'User already exists' })
-    async register(@Body() registerDto: RegisterDto): Promise<AuthResponseDto> {
+    async register(@Body() registerDto: RegisterDto): Promise<RegisterResponseDto> {
         return this.authService.register(registerDto);
     }
 

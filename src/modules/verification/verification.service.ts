@@ -1,9 +1,12 @@
-// verification.service.ts
-import { Injectable, BadRequestException } from '@nestjs/common';
+
+import { Injectable, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Verification } from 'src/entities/verification.entity';
 import { EmailService } from './email.service';
+import { AuthService } from '../auth/auth.service';
+import { AuthResponseDto } from '../auth/dto/auth-response.dto';
+import { RegisterResponseDto } from './dto/register-response.dto';
 
 @Injectable()
 export class VerificationService {
@@ -11,6 +14,7 @@ export class VerificationService {
         @InjectModel(Verification.name) 
         private verificationModel: Model<Verification>,
         private emailService: EmailService,
+        @Inject(forwardRef(() => AuthService)) private authService: AuthService
     ) {}
 
     private generateCode(): string {
@@ -31,7 +35,7 @@ export class VerificationService {
         });
 
         const res = await this.emailService.sendVerificationCode(email, code);
-        console.log(res, "email")
+        //console.log(res, "email")
         
         return { 
             message: 'Verification code sent to your email',
@@ -39,7 +43,7 @@ export class VerificationService {
         };
     }
 
-    async verifyCode(email: string, code: string): Promise<boolean> {
+    async verifyCode(email: string, code: string): Promise<AuthResponseDto> {
         const verification = await this.verificationModel.findOne({
             email,
             code,
@@ -52,7 +56,7 @@ export class VerificationService {
 
         await this.verificationModel.deleteOne({ _id: verification._id });
 
-        return true;
+        return this.authService.registerVerifiedUser(email);
     }
 
 
@@ -66,7 +70,7 @@ export class VerificationService {
         return !!verification;
     }
 
-    async resendCode(email: string) {
+    async resendCode(email: string): Promise<RegisterResponseDto> {
         const recentCode = await this.verificationModel.findOne({
             email,
             createdAt: { $gt: new Date(Date.now() - 60 * 1000) }, 

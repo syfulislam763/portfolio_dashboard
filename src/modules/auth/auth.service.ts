@@ -12,6 +12,9 @@ import { ConfigService } from '@nestjs/config';
 import { RefreshToken } from 'src/entities/refresh.entity';
 import { Types } from 'mongoose';
 import { VerificationService } from '../verification/verification.service';
+import { TempUser } from 'src/entities/user.temp.entity';
+import { RegisterResponseDto } from '../verification/dto/register-response.dto';
+import passport from 'passport';
 
 @Injectable()
 export class AuthService {
@@ -19,38 +22,70 @@ export class AuthService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(RefreshToken.name) private refreshTokenModel: Model<RefreshToken>,
+        @InjectModel(TempUser.name) private tempUserModel: Model<TempUser>,
         private jwtService : JwtService,
         private configService: ConfigService,
         private verificationService: VerificationService
     ) {}
 
 
-    async sendOTP () {
-        
-    }
-
-    async register(registerDto: RegisterDto) : Promise<any> {
+    async register(registerDto: RegisterDto) : Promise<RegisterResponseDto> {
         const {email, password, role} = registerDto;
-        const existingUser = await this.userModel.findOne({email, isDeleted:false})
+        const existingTempUser = await this.tempUserModel.findOne({email, isDeleted:false})
 
-        if(existingUser){
-            throw new ConflictException('User with this eamil already exists')
+        if(existingTempUser){
+            throw new ConflictException({message: 'Please verify email', code: 'VERIFY_EMAIL'})
+        }
+
+        const isVerifiedUser = await this.userModel.findOne({email, isDeleted:false})
+
+        if(isVerifiedUser){
+            throw new ConflictException({message: "User is already exist with this email", code: "USER_EXIST"})
+        }
+
+        const isExist = await this.userModel.findOne({email:email, isDeleted: true})
+
+        if(isExist){
+            throw new ConflictException({message:"Contact to support to retrive your account", code: "DELETED_USER"})
         }
 
         const res = await this.verificationService.sendVerificationCode(email)
 
-        console.log(res, "send email")
-        // const user = new this.userModel({
-        //     email,
-        //     password,
-        //     role,
-        //     isDeleted: false
-        // })
+       
+        const user = new this.tempUserModel({
+            email,
+            password,
+            role,
+            isDeleted: false
+        })
 
-        // await user.save()
+        await user.save()
 
+        return res;
 
-        // return this.generateTokens(user);
+    }
+
+    async registerVerifiedUser(email: string): Promise<AuthResponseDto> {
+        const tempUser = await this.tempUserModel.findOneAndDelete({email})
+
+        if(!tempUser){
+            throw new NotFoundException('There is no user to be registered')
+        }
+
+        //console.log(tempUser, 'deleted temp user')
+
+        const payload = {
+            email: tempUser.email,
+            password: tempUser.password,
+            role: tempUser.role,
+            isDeleted: tempUser.isDeleted
+        }
+
+        const newUser = new this.userModel(payload);
+
+        await newUser.save();
+
+        return this.generateTokens(newUser);
 
     }
 
@@ -176,6 +211,9 @@ export class AuthService {
         const user = await this.userModel.findById(id)
         if (!user) {
             throw new NotFoundException('User not found');
+        }
+        if(user.isDeleted){
+            throw new NotFoundException('User does not exist');
         }
         user.isDeleted = true;
 
