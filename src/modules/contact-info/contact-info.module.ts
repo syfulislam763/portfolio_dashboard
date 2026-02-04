@@ -7,6 +7,7 @@ import { ContactInfo, ContactInfoSchema } from 'src/entities/contact-info.entity
 @Module({
   imports: [MongooseModule.forFeature([{name: ContactInfo.name, schema: ContactInfoSchema}])],
   controllers: [ContactInfoController],
-  providers: [ContactInfoService]
+  providers: [ContactInfoService],
+  exports: [ContactInfoService]
 })
 export class ContactInfoModule {}

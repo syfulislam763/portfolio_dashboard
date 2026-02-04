@@ -31,3 +31,63 @@ UserSchema.pre('save', async function () {
   this.password = await bcrypt.hash(this.password, 12);
 });
 
+
+
+
+UserSchema.virtual('abouts', {
+  ref: 'About',
+  localField: '_id',
+  foreignField: 'userId'
+});
+
+UserSchema.virtual('contactinfos', {
+  ref: 'ContactInfo',
+  localField: '_id',
+  foreignField: 'userId'
+});
+
+UserSchema.virtual('educations', {
+  ref: 'Education',
+  localField: '_id',
+  foreignField: 'userId'
+});
+
+UserSchema.virtual('experiences', {
+  ref: 'Experience',
+  localField: '_id',
+  foreignField: 'userId'
+});
+
+UserSchema.virtual('intros', {
+  ref: 'Intro',
+  localField: '_id',
+  foreignField: 'userId'
+});
+
+UserSchema.virtual('posts', {
+  ref: 'Post',
+  localField: '_id',
+  foreignField: 'userId'
+});
+
+UserSchema.virtual('projects', {
+  ref: 'Project',
+  localField: '_id',
+  foreignField: 'userId'
+});
+
+UserSchema.virtual('questions', {
+  ref: 'Question',
+  localField: '_id',
+  foreignField: 'userId'
+});
+
+UserSchema.virtual('skills', {
+  ref: 'Skill',
+  localField: '_id',
+  foreignField: 'userId'
+});
+
+
+UserSchema.set('toJSON', { virtuals: true });
+UserSchema.set('toObject', { virtuals: true });

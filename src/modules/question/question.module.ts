@@ -7,6 +7,7 @@ import { Question, QuestionSchema } from 'src/entities/question.entity';
 @Module({
   imports: [MongooseModule.forFeature([{name: Question.name, schema: QuestionSchema}])],
   controllers: [QuestionController],
-  providers: [QuestionService]
+  providers: [QuestionService],
+  exports: [QuestionService]
 })
 export class QuestionModule {}

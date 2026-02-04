@@ -8,12 +8,31 @@ import * as bcrypt from 'bcrypt'
 import { RefreshToken } from 'src/entities/refresh.entity';
 import { CreateRefreshTokenDto } from './dto/create-refresh.dto';
 import { UpdateRefreshTokenDto } from './dto/update-refresh.dto';
+import { AboutService } from '../about/about.service';
+import { ContactInfoService } from '../contact-info/contact-info.service';
+import { EducationService } from '../education/education.service';
+import { ExperienceService } from '../experience/experience.service';
+import { IntroService } from '../intro/intro.service';
+import { PostService } from '../post/post.service';
+import { ProjectService } from '../project/project.service';
+import { QuestionService } from '../question/question.service';
+import { Skill } from 'src/entities/skill.entity';
+import { SkillService } from '../skill/skill.service';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
-        @InjectModel(RefreshToken.name) private refreshTokenModel: Model<RefreshToken>
+        @InjectModel(RefreshToken.name) private refreshTokenModel: Model<RefreshToken>,
+        private aboutService: AboutService,
+        private contactInfoService: ContactInfoService,
+        private educationService: EducationService,
+        private experienceService: ExperienceService,
+        private introService: IntroService,
+        private postService: PostService,
+        private projectService: ProjectService,
+        private questionService: QuestionService,
+        private skillService: SkillService
     ){}
 
     async create(createUserDto: CreateUserDto) : Promise<User> {
@@ -41,8 +60,18 @@ export class UserService {
         return updated
     }
 
-    async findAll(): Promise<User[]> {
-        return this.userModel.find({}).select("-password").exec()
+    async findAll(): Promise<any> {
+        return this.userModel.find({}).select("-password")
+                                     .populate('abouts')
+                                     .populate('contactinfos')
+                                     .populate('educations')
+                                     .populate('experiences')
+                                     .populate('intros')
+                                     .populate('posts')
+                                     .populate('projects')
+                                     .populate('questions')
+                                     .populate('skills')
+                                     .exec()
     }
 
     async findByEmail(email: string): Promise<User> {

@@ -11,6 +11,7 @@ import { About, AboutSchema } from 'src/entities/about.entity';
     }])
   ],
   controllers: [AboutController],
-  providers: [AboutService]
+  providers: [AboutService],
+  exports: [AboutService]
 })
 export class AboutModule {}

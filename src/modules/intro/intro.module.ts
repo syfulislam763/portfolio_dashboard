@@ -11,6 +11,7 @@ import { Intro, IntroSchema } from 'src/entities/intro.entity';
     ])
   ],
   controllers: [IntroController],
-  providers: [IntroService]
+  providers: [IntroService],
+  exports: [IntroService]
 })
 export class IntroModule {}
