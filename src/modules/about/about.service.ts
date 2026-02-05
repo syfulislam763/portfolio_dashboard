@@ -50,7 +50,8 @@ export class AboutService {
         const about =  await this.aboutModel.findOne({userId:id}).select("projectCompleted yearOfExperience jobCompleted introVideo").exec()
 
         if(!about){
-            throw new NotFoundException("About may not created yet")
+            // throw new NotFoundException("About may not created yet")
+            return new AboutResponse({})
         }
 
         return about;

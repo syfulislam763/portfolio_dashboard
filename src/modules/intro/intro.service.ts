@@ -51,7 +51,8 @@ export class IntroService {
         }
         const intro = await this.introModel.findOne({userId:id}).select("image name title description file").exec();
         if(!intro){
-            throw new NotFoundException("Intro is not found")
+            //throw new NotFoundException("Intro is not found")
+            return new IntroResponse({})
         }
 
         return intro

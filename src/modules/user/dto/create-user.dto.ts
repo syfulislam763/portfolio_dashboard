@@ -1,6 +1,7 @@
 import { IsBoolean, IsEmail, IsNumber, IsOptional,IsString,isString } from "class-validator";
 import { UserRole } from "src/entities/user.entity";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Types } from "mongoose";
 export class CreateUserDto {
     @ApiProperty({
         example: 'user@example.com'

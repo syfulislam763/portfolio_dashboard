@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model,Types, Promise } from 'mongoose';
+import { Model,Types, Promise as PM } from 'mongoose';
 import { User, UserRole } from 'src/entities/user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto, UserResponseDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt'
 import { RefreshToken } from 'src/entities/refresh.entity';
@@ -61,17 +61,7 @@ export class UserService {
     }
 
     async findAll(): Promise<any> {
-        return this.userModel.find({}).select("-password")
-                                     .populate('abouts')
-                                     .populate('contactinfos')
-                                     .populate('educations')
-                                     .populate('experiences')
-                                     .populate('intros')
-                                     .populate('posts')
-                                     .populate('projects')
-                                     .populate('questions')
-                                     .populate('skills')
-                                     .exec()
+        return this.userModel.find({}).select("-password").exec()
     }
 
     async findByEmail(email: string): Promise<User> {
@@ -81,10 +71,42 @@ export class UserService {
     }
 
 
-    async findOne(id: string): Promise<User> {
-        const user = await this.userModel.findOne({ _id: id, isDeleted: false }).select('-password').exec();
-        if (!user) throw new NotFoundException('User not found');
-        return user;
+    async findOne(id: string): Promise<any> {
+
+
+        const [user, about, intro, contactInfo, education, experience, post, project, question, skill] = await Promise.all([
+            this.userModel.findOne({ _id: id }).select('_id email role isDeleted createdAt').exec(),
+            this.aboutService.get(id),
+            this.introService.get(id),
+            this.contactInfoService.get(id),
+            this.educationService.access(id),
+            this.experienceService.access(id),
+            this.postService.access(id),
+            this.projectService.access(id),
+            this.questionService.access(id),
+            this.skillService.access(id)
+        ])
+
+        if(!user){
+            throw new NotFoundException("No user is found")
+        }
+
+        return {
+            _id: user._id,
+            email: user.email,
+            role: user.role,
+            information: {
+                about,
+                intro,
+                contactInfo,
+                education,
+                experience,
+                post,
+                project,
+                question,
+                skill
+            }
+        };
     }
 
     async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
