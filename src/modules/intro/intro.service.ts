@@ -59,4 +59,14 @@ export class IntroService {
     }
 
 
+    async remove(userId:string) {
+        if(!Types.ObjectId.isValid(userId)){
+                throw new BadRequestException("Invalid user id")
+        }
+
+        const isDeleted = await this.introModel.deleteOne({userId:userId}).exec();
+
+    }
+
+
 }

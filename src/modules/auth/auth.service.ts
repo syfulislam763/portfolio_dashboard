@@ -15,6 +15,7 @@ import { VerificationService } from '../verification/verification.service';
 import { TempUser } from 'src/entities/user.temp.entity';
 import { RegisterResponseDto } from '../verification/dto/register-response.dto';
 import passport from 'passport';
+import { ChangePasswordDto, ResetPassDto } from '../verification/dto/reset-pass.dto';
 
 @Injectable()
 export class AuthService {
@@ -46,7 +47,7 @@ export class AuthService {
         const isExist = await this.userModel.findOne({email:email, isDeleted: true})
 
         if(isExist){
-            throw new ConflictException({message:"Contact to support to retrive your account", code: "DELETED_USER"})
+            throw new ConflictException({message:"Contact to support to retrieve your account", code: "DELETED_USER"})
         }
 
         const res = await this.verificationService.sendVerificationCode(email)
@@ -230,6 +231,80 @@ export class AuthService {
             throw new UnauthorizedException('User not found');
         }
         return user;
+    }
+
+    async resetPassword (resetPassDto: ResetPassDto): Promise<any>{
+        return this.verificationService.resetPasswordVerify(resetPassDto);
+    }
+
+    async resetPasswordOtp (email: string): Promise<any>{
+        return this.verificationService.resendCode(email);
+    }
+
+    async resetPasswordForVarifiedEamil(resetPassDto: ResetPassDto):Promise<any> {
+        if (!resetPassDto.email || !resetPassDto.newPass) {
+            throw new BadRequestException('Email and password are required');
+        }
+
+        const user = await this.userModel.findOne({ 
+            email: resetPassDto.email, 
+            isDeleted: false
+        }).select('+password');
+
+        if (!user) {
+            throw new NotFoundException('User does not exist');
+        }
+
+
+        if (!user.password) {
+            throw new UnauthorizedException('Invalid user data');
+        }
+
+        user.password = await bcrypt.hash(resetPassDto.newPass, 12);
+
+        await this.userModel.findOneAndUpdate({email:resetPassDto.email}, user, {new:true})
+
+
+        return {
+            message: 'Password has updated'
+        }
+        
+    }
+
+    async changePassword(userId: string, changePassDto: ChangePasswordDto): Promise<any>{
+        if (!Types.ObjectId.isValid(userId)) {
+            throw new BadRequestException('Invalid user id');
+        }
+
+        const user = await this.userModel.findOne({ 
+            _id: userId, 
+            isDeleted: false
+        }).select('+password');
+
+        if (!user) {
+            throw new NotFoundException('User does not exist');
+        }
+
+        if (!user.password) {
+            throw new UnauthorizedException('Invalid user data');
+        }
+
+        const isPasswordValid = await bcrypt.compare(changePassDto.oldPass, user.password);
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+
+        user.password = await bcrypt.hash(changePassDto.newPass, 12);
+
+        await this.userModel.findOneAndUpdate({_id:userId}, user, {new:true})
+
+
+        return {
+            message: 'Password has changed'
+        }
+
+
     }
 
 

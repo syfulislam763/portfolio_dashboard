@@ -57,4 +57,13 @@ export class AboutService {
         return about;
     }
 
+    async remove(userId:string) {
+        if(!Types.ObjectId.isValid(userId)){
+             throw new BadRequestException("Invalid user id")
+        }
+
+        const isDeleted = await this.aboutModel.deleteOne({userId:userId}).exec();
+
+    }
+
 }

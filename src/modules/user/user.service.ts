@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model,Types, Promise as PM } from 'mongoose';
 import { User, UserRole } from 'src/entities/user.entity';
@@ -18,6 +18,7 @@ import { ProjectService } from '../project/project.service';
 import { QuestionService } from '../question/question.service';
 import { Skill } from 'src/entities/skill.entity';
 import { SkillService } from '../skill/skill.service';
+import { UserListResponseDto } from './dto/all-user-response.dto';
 
 @Injectable()
 export class UserService {
@@ -36,6 +37,10 @@ export class UserService {
     ){}
 
     async create(createUserDto: CreateUserDto) : Promise<User> {
+        const isExist = await this.userModel.findOne({email: createUserDto.email}).lean().exec();
+        if(isExist){
+            throw new ConflictException("Email already is taken for another user")
+        }
         const user = new this.userModel(createUserDto);
         return user.save()
     }
@@ -60,8 +65,39 @@ export class UserService {
         return updated
     }
 
-    async findAll(): Promise<any> {
-        return this.userModel.find({}).select("-password").exec()
+    async findAll(page:number, limit: number): Promise<any> {
+        const skip = (page-1)*limit;
+        const [users, total] = await Promise.all([
+            this.userModel.find({}).select("-password").sort({ createdAt: -1 }).skip(skip).limit(limit).lean().exec(),
+            this.userModel.countDocuments({})
+        ])
+
+        const usersWithDetails = await Promise.all(
+            users.map(async (user) => {
+                const userId = user._id.toString();
+                
+                const [intro] = await Promise.all([
+                    this.introService.get(userId)
+                ]);
+
+                return {
+                    ...user,
+                    name: intro.name,
+                    title: intro.title,
+                    image: intro.image,
+                };
+            })
+        );
+
+        return {
+            data: usersWithDetails,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
     }
 
     async findByEmail(email: string): Promise<User> {
@@ -109,30 +145,71 @@ export class UserService {
         };
     }
 
-    async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-        if (updateUserDto.password) {
-        updateUserDto.password = await bcrypt.hash(updateUserDto.password, 12);
-        }
+    async update(id: string, updateUserDto: UpdateUserDto): Promise<any> {
         const user = await this.userModel
-        .findOneAndUpdate({ _id: id, isDeleted: false }, updateUserDto, { new: true })
+        .findOneAndUpdate({ _id: id }, {isDeleted: updateUserDto.isDeleted,role:updateUserDto.role}, { new: true })
         .select('-password')
         .exec();
 
         if (!user) throw new NotFoundException('User not found');
-        return user;
+
+        return {role: user.role, isDeleted: user.isDeleted};
     }
 
-    async softDelete(id: string): Promise<User> {
+    async softDelete(id: string): Promise<any> {
         if (!Types.ObjectId.isValid(id)) {
             throw new BadRequestException('Invalid user id');
         }
-        const user = await this.userModel.findById(id)
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
-        user.isDeleted = true;
+        
 
-        return user.save()
+    }
+
+
+
+    async hardDelete(id: string, email: string): Promise<{ message: string }> {
+        if (!Types.ObjectId.isValid(id)) {
+            throw new BadRequestException('Invalid user ID');
+        }
+
+
+        try {
+            const [
+                userResult,
+                aboutResult,
+                introResult,
+                contactInfoResult,
+                educationResult,
+                experienceResult,
+                postResult,
+                projectResult,
+                questionResult,
+                skillResult,
+                tokenResult,
+            ] = await Promise.all([
+                this.userModel.deleteOne({ _id: id }).exec(),
+                this.aboutService.remove(id),
+                this.introService.remove(id),
+                this.contactInfoService.removeAll(id),
+                this.educationService.removeAll(id),
+                this.experienceService.removeAll(id),
+                this.postService.removeAll(id),
+                this.projectService.removeAll(id),
+                this.questionService.removeAll(id),
+                this.skillService.removeAll(id),
+                this.refreshTokenModel.deleteOne({email: email})
+            ]);
+
+            if (userResult.deletedCount === 0) {
+                throw new NotFoundException('User not found');
+            }
+
+            return { message: 'User and all related data deleted successfully' };
+        } catch (error) {
+            if (error instanceof NotFoundException || error instanceof BadRequestException) {
+                throw error;
+            }
+            throw new InternalServerErrorException('Failed to delete user data');
+        }
     }
 
 }

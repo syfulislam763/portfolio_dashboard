@@ -75,6 +75,15 @@ export class PostService {
 
     }
 
+    async removeAll (userId:string) {
+        if(!Types.ObjectId.isValid(userId)){
+            throw new BadRequestException("Invalid user id")
+        }
+
+        const isDeletedAll = await this.postModel.deleteMany({userId:userId}).exec()
+
+    }
+
 
 
 

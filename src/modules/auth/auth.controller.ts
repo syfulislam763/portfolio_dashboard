@@ -10,7 +10,8 @@ import { CurrentUser } from './decroators/current-user.decroator'
 import { Roles } from './guards/roles.guards';
 import { UserRole } from 'src/entities/user.entity';
 import { GetUser } from './decroators/get-user.decroator';
-import { RegisterResponseDto } from '../verification/dto/register-response.dto';
+import { PassChangedDto, RegisterResponseDto, SendPassDto } from '../verification/dto/register-response.dto';
+import { ChangePasswordDto, ResetPassDto } from '../verification/dto/reset-pass.dto';
 
 
 @ApiTags('Auth')
@@ -48,6 +49,26 @@ export class AuthController {
         return this.authService.refreshToken(refreshTokenDto.refreshToken);
     }
 
+    @Public()
+    @Post('send-reset-pass-otp')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Refresh access token' })
+    @ApiResponse({ status: 200, type: RegisterResponseDto})
+    @ApiResponse({ status: 401, description: 'Invalid refresh token' })
+    async resetPasswordOtp(@Body() sendPassDto: SendPassDto): Promise<any> {
+        return this.authService.resetPasswordOtp(sendPassDto.email);
+    }
+
+    @Public()
+    @Post('reset-pass')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Refresh access token' })
+    @ApiResponse({ status: 200, type: PassChangedDto })
+    @ApiResponse({ status: 401, description: 'Invalid refresh token' })
+    async resetPassword(@Body() resetPassDto: ResetPassDto): Promise<any> {
+        return this.authService.resetPassword(resetPassDto);
+    }
+
 
     @Post('logout')
     @ApiBearerAuth()
@@ -57,6 +78,16 @@ export class AuthController {
     @ApiResponse({ status: 200, description: 'Logged out successfully' })
     async logout(@CurrentUser() user: any) {
         return this.authService.logout(user.userId);
+    }
+
+    @Post('change-pass')
+    @ApiBearerAuth()
+    @Roles(UserRole.ADMIN, UserRole.USER)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'change password' })
+    @ApiResponse({ status: 200, description: 'change password', type: PassChangedDto })
+    async changePassword(@GetUser('_id') id: string, @Body() changePassDto: ChangePasswordDto) {
+        return this.authService.changePassword(id, changePassDto);
     }
 
     @Delete('delete')

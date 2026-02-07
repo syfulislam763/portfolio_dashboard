@@ -64,5 +64,14 @@ export class EducationService {
         }
     }
 
+    async removeAll (userId:string) {
+        if(!Types.ObjectId.isValid(userId)){
+            throw new BadRequestException("Invalid user id")
+        }
+
+        const isDeletedAll = await this.educationModel.deleteMany({userId:userId}).exec()
+
+    }
+
 
 }

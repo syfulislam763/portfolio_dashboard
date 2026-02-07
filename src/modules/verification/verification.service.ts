@@ -7,6 +7,7 @@ import { EmailService } from './email.service';
 import { AuthService } from '../auth/auth.service';
 import { AuthResponseDto } from '../auth/dto/auth-response.dto';
 import { RegisterResponseDto } from './dto/register-response.dto';
+import { ResetPassDto } from './dto/reset-pass.dto';
 
 @Injectable()
 export class VerificationService {
@@ -57,6 +58,22 @@ export class VerificationService {
         await this.verificationModel.deleteOne({ _id: verification._id });
 
         return this.authService.registerVerifiedUser(email);
+    }
+
+    async resetPasswordVerify(resetPassDto: ResetPassDto): Promise<any> {
+        const verification = await this.verificationModel.findOne({
+            email: resetPassDto.email,
+            code: resetPassDto.code,
+            expiresAt: { $gt: new Date() }, 
+        });
+
+        if (!verification) {
+            throw new BadRequestException('Invalid or expired verification code');
+        }
+
+        await this.verificationModel.deleteOne({ _id: verification._id });
+
+        return this.authService.resetPasswordForVarifiedEamil(resetPassDto)
     }
 
 

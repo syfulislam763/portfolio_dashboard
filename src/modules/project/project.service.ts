@@ -83,6 +83,15 @@ export class ProjectService {
 
     }
 
+    async removeAll (userId:string) {
+        if(!Types.ObjectId.isValid(userId)){
+            throw new BadRequestException("Invalid user id")
+        }
+
+        const isDeletedAll = await this.projectModel.deleteMany({userId:userId}).exec()
+
+    }
+
     
 
 
