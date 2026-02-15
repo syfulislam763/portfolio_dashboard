@@ -19,12 +19,15 @@ import { QuestionService } from '../question/question.service';
 import { Skill } from 'src/entities/skill.entity';
 import { SkillService } from '../skill/skill.service';
 import { UserListResponseDto } from './dto/all-user-response.dto';
+import { APIKey } from 'src/entities/apiKey.entity';
+import * as crypto from 'crypto'
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(RefreshToken.name) private refreshTokenModel: Model<RefreshToken>,
+        @InjectModel(APIKey.name) private apiKeyModel: Model<APIKey>,
         private aboutService: AboutService,
         private contactInfoService: ContactInfoService,
         private educationService: EducationService,
@@ -196,7 +199,8 @@ export class UserService {
                 this.projectService.removeAll(id),
                 this.questionService.removeAll(id),
                 this.skillService.removeAll(id),
-                this.refreshTokenModel.deleteOne({email: email})
+                this.refreshTokenModel.deleteOne({email: email}),
+                this.apiKeyModel.deleteOne({email: email})
             ]);
 
             if (userResult.deletedCount === 0) {
@@ -211,5 +215,43 @@ export class UserService {
             throw new InternalServerErrorException('Failed to delete user data');
         }
     }
+
+
+    async generateApiKey(email: string, userId: string): Promise<{ apiKey: string | null }> {
+        const obj = await this.apiKeyModel.findById(userId);
+        const apiKey = `pk_${crypto.randomBytes(32).toString('hex')}`
+        if (!obj) {
+            const newApiKey = new this.apiKeyModel({apiKey, email, userId});
+            await newApiKey.save();
+            return {apiKey}
+        }
+
+        if(!(obj?.apiKey)){
+            obj.apiKey = apiKey;
+            await obj.save();
+            return {apiKey}
+        }
+
+        return {apiKey: obj.apiKey}
+    }
+
+    async revokeApiKey(userId: string): Promise<{ message: string }> {
+        const apiKey = await this.apiKeyModel.findById(userId);
+
+        if (!apiKey) {
+            throw new NotFoundException('ApiKey is not found');
+        }
+
+        apiKey.apiKey = null;
+
+        await apiKey.save();
+
+        return { message: 'API key revoked successfully' };
+    }
+
+
+
+
+
 
 }

@@ -13,6 +13,7 @@ import { PostModule } from '../post/post.module';
 import { ProjectModule } from '../project/project.module';
 import { QuestionModule } from '../question/question.module';
 import { SkillModule } from '../skill/skill.module';
+import { APIKey, APIKeySchema } from 'src/entities/apiKey.entity';
 
 
 
@@ -20,6 +21,7 @@ import { SkillModule } from '../skill/skill.module';
   imports: [MongooseModule.forFeature([
       {name: User.name, schema: UserSchema},
       {name: RefreshToken.name, schema: RefreshTokenSchema},
+      {name: APIKey.name, schema: APIKeySchema},
     ]),
 
     AboutModule,
