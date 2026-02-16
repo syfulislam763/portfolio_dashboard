@@ -8,12 +8,13 @@ import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@ne
 import { Roles } from '../auth/guards/roles.guards';
 import { UserRole } from 'src/entities/user.entity';
 import { Public } from '../auth/decroators/public.decroator';
-import { UserListItemDto, UserListResponseDto } from './dto/all-user-response.dto';
+import { ApiKeyResponseDto, UserListItemDto, UserListResponseDto } from './dto/all-user-response.dto';
 import { UserDetailResponseDto } from './dto/user-detail-response.dto';
+import { GetUser } from '../auth/decroators/get-user.decroator';
 
 @ApiTags('Users')
 @ApiBearerAuth()
-@Controller('user')
+@Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) {  }
 
@@ -42,6 +43,25 @@ export class UserController {
     })
     findAll(@Query('page') page: number, @Query('limit') limit: number): Promise<UserListResponseDto> {
         return this.userService.findAll(page, limit)
+    }
+
+    @Get("me/generate/apiKey")
+    @Roles(UserRole.ADMIN, UserRole.USER)
+    @ApiOkResponse({
+        description: 'An api key will be generated',
+        type: ApiKeyResponseDto
+    })
+    generate(@GetUser() user: {_id:string, email:string, role: string}): Promise<any>{
+        return this.userService.generateApiKey(user.email, user._id)
+    }
+    @Get("me/revoke/apiKey")
+    @Roles(UserRole.ADMIN, UserRole.USER)
+    @ApiOkResponse({
+        description: 'An api key will be generated',
+        type: ApiKeyResponseDto
+    })
+    revoke(@GetUser() user: {_id:string, email:string, role: string}): Promise<any>{
+        return this.userService.revokeApiKey(user._id)
     }
 
     @Get(':id')

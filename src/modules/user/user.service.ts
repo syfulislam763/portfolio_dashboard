@@ -218,9 +218,10 @@ export class UserService {
 
 
     async generateApiKey(email: string, userId: string): Promise<{ apiKey: string | null }> {
-        const obj = await this.apiKeyModel.findById(userId);
+        const obj = await this.apiKeyModel.findOne({userId: userId});
         const apiKey = `pk_${crypto.randomBytes(32).toString('hex')}`
         if (!obj) {
+            console.log(obj)
             const newApiKey = new this.apiKeyModel({apiKey, email, userId});
             await newApiKey.save();
             return {apiKey}
@@ -236,15 +237,12 @@ export class UserService {
     }
 
     async revokeApiKey(userId: string): Promise<{ message: string }> {
-        const apiKey = await this.apiKeyModel.findById(userId);
+        
+        const isUpdated = await this.apiKeyModel.findOneAndUpdate({userId:userId}, {apiKey: null}, {new:true})
 
-        if (!apiKey) {
-            throw new NotFoundException('ApiKey is not found');
+        if(!isUpdated){
+            throw new NotFoundException("User may not found")
         }
-
-        apiKey.apiKey = null;
-
-        await apiKey.save();
 
         return { message: 'API key revoked successfully' };
     }

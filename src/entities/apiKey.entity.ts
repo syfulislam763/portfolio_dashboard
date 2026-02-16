@@ -5,8 +5,8 @@ import { BaseSchema } from "src/common/schema/base.schema";
 
 @Schema({timestamps:true})
 export class APIKey extends BaseSchema {
-    @Prop({ unique: true, sparse: true, required: false }) 
-    apiKey: string| null ;
+    @Prop({ unique: true, sparse: true, required: false, type:String, default: null}) 
+    apiKey?: string;
 
     @Prop({required: true, unique: true})
     email: string

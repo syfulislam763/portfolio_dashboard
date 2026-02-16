@@ -85,3 +85,14 @@ export class UserListResponseDto {
         totalPages: number;
     };
 }
+
+
+export class ApiKeyResponseDto {
+    @ApiProperty()
+    apiKey: string
+}
+
+export class ApiKeyRevokedResponseDto {
+    @ApiProperty()
+    message: string
+}
