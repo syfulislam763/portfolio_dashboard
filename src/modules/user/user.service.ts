@@ -113,7 +113,7 @@ export class UserService {
     async findOne(id: string): Promise<any> {
 
 
-        const [user, about, intro, contactInfo, education, experience, post, project, question, skill] = await Promise.all([
+        const [user, about, intro, contactInfos, educations, experiences, posts, projects, questions, skills] = await Promise.all([
             this.userModel.findOne({ _id: id }).select('_id email role isDeleted createdAt').exec(),
             this.aboutService.get(id),
             this.introService.get(id),
@@ -137,13 +137,13 @@ export class UserService {
             information: {
                 about,
                 intro,
-                contactInfo,
-                education,
-                experience,
-                post,
-                project,
-                question,
-                skill
+                contactInfos,
+                educations,
+                experiences,
+                posts,
+                projects,
+                questions,
+                skills
             }
         };
     }
@@ -246,6 +246,23 @@ export class UserService {
 
         return { message: 'API key revoked successfully' };
     }
+
+    async validateApiKey(apiKey: string): Promise<{_id:string,email:string, role:string}> {
+        const keyObj = await this.apiKeyModel.findOne({apiKey: apiKey}).exec();
+        if(!keyObj){
+            throw new NotFoundException('Invalid API key')
+        }
+
+        const user = await this.userModel.findOne({email:keyObj.email}).exec();
+
+        if(!user){
+            throw new NotFoundException("API Key is corrupted")
+        }
+
+        return {_id:user._id.toString(),email: user.email, role:user.role};
+
+    }
+
 
 
 

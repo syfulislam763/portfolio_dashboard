@@ -1,16 +1,17 @@
-import { Controller, Body, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Controller, Body, Delete, Get, Param, Patch, Post, Query, UseGuards, Request } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto, UserResponseDto} from './dto/create-user.dto';
 import { DeleteUserResponseDto, UpdateSuccessResponseDto, UpdateUserDto } from './dto/update-user.dto';
 import { CreateRefreshTokenDto } from './dto/create-refresh.dto';
 import { UpdateRefreshTokenDto } from './dto/update-refresh.dto';
-import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiHeader, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../auth/guards/roles.guards';
 import { UserRole } from 'src/entities/user.entity';
 import { Public } from '../auth/decroators/public.decroator';
 import { ApiKeyResponseDto, UserListItemDto, UserListResponseDto } from './dto/all-user-response.dto';
 import { UserDetailResponseDto } from './dto/user-detail-response.dto';
 import { GetUser } from '../auth/decroators/get-user.decroator';
+import { ApiKeyGuard } from './api-key.guard';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -45,6 +46,19 @@ export class UserController {
         return this.userService.findAll(page, limit)
     }
 
+    @Get('me')
+    @Public()
+    @ApiOperation({security: []})
+    @UseGuards(ApiKeyGuard)
+    @ApiHeader({name: 'x-api-key', required:true})
+    @ApiOkResponse({
+        type: UserDetailResponseDto
+    })
+    async getAllData(@Request() req) {
+        return this.userService.findOne(req.user._id)
+    }
+
+
     @Get("me/generate/apiKey")
     @Roles(UserRole.ADMIN, UserRole.USER)
     @ApiOkResponse({
@@ -54,6 +68,9 @@ export class UserController {
     generate(@GetUser() user: {_id:string, email:string, role: string}): Promise<any>{
         return this.userService.generateApiKey(user.email, user._id)
     }
+
+
+
     @Get("me/revoke/apiKey")
     @Roles(UserRole.ADMIN, UserRole.USER)
     @ApiOkResponse({
@@ -63,6 +80,8 @@ export class UserController {
     revoke(@GetUser() user: {_id:string, email:string, role: string}): Promise<any>{
         return this.userService.revokeApiKey(user._id)
     }
+
+
 
     @Get(':id')
     @Roles(UserRole.ADMIN)

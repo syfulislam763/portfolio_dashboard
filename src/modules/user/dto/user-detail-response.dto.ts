@@ -43,43 +43,43 @@ export class UserInformationDto {
         type: [ContactInfoResponse],
         description: 'Contact information - empty array if no data'
     })
-    contactInfo: ContactInfoResponse[];
+    contactInfos: ContactInfoResponse[];
 
     @ApiProperty({ 
         type: [EducationResponse],
         description: 'Education history - empty array if no data'
     })
-    education: EducationResponse[];
+    educations: EducationResponse[];
 
     @ApiProperty({ 
         type: [ExperienceResponse],
         description: 'Work experience - empty array if no data'
     })
-    experience: ExperienceResponse[];
+    experiences: ExperienceResponse[];
 
     @ApiProperty({ 
         type: [PostResponseDto],
         description: 'Posts - empty array if no data'
     })
-    post: PostResponseDto[];
+    posts: PostResponseDto[];
 
     @ApiProperty({ 
         type: [ProjectResponse],
         description: 'Projects - empty array if no data'
     })
-    project: ProjectResponse[];
+    projects: ProjectResponse[];
 
     @ApiProperty({ 
         type: [QuestionResponse],
         description: 'Q&A - empty array if no data'
     })
-    question: QuestionResponse[];
+    questions: QuestionResponse[];
 
     @ApiProperty({ 
         type: [SkillResponse],
         description: 'Skills - empty array if no data'
     })
-    skill: SkillResponse[];
+    skills: SkillResponse[];
 }
 
 export class UserDetailResponseDto {
